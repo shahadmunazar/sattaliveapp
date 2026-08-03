@@ -192,6 +192,7 @@ const Crossing = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#121212',
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -206,7 +207,8 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     marginLeft: 10,
-    color:"#000"
+    color: "#fff",
+    fontWeight: 'bold',
   },
   inputsContainer: {
     flexDirection: 'row',
@@ -215,12 +217,13 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderColor: '#333344',
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
     padding: 10,
     flex: 1,
     margin: 5,
-    color:"#000"
+    color:"#fff"
   },
   numberInput: {
     height: 40, // Height for number inputs
@@ -235,72 +238,83 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#333344',
+    borderRadius: 8,
+    marginBottom: 8,
   },
   headerText: {
     fontWeight: 'bold',
     flex: 1,
-    color:"#000"
+    color:"#FFD700",
+    textAlign: 'center',
   },
   item: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 10,
+    borderBottomColor: '#333344',
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 5,
-     
+    paddingHorizontal: 10,
   },
   itemText: {
     flex: 1,
-    color:"#000"
+    color:"#A0A0A0",
+    textAlign: 'center',
+    fontSize: 16,
   },
   removeButton: {
-    backgroundColor: 'black',
+    backgroundColor: '#FF4C4C',
     borderRadius: 50,
-    padding: 2,
+    padding: 4,
   },
   checkbox: {
     margin: 10, // Optional styling
   },
   addButton: {
-    backgroundColor: 'black',
-    borderRadius: 5,
-    padding: 10,
+    backgroundColor: '#FFD700',
+    borderRadius: 8,
+    padding: 12,
     alignItems: 'center',
     marginBottom: 20,
   },
   addButtonText: {
-    color: 'white',
+    color: '#121212',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   totalAmountContainer: {
     marginVertical: 10,
   },
   totalAmountText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color:"#000"
+    color:"#FFD700"
   },
   submitButtonContainer: {
-    padding: 10,
-    backgroundColor: 'lightred',
+    padding: 16,
+    backgroundColor: '#121212',
   },
   submitButton: {
-    backgroundColor: 'red',
-    borderRadius: 5,
-    padding: 15,
+    backgroundColor: '#FFD700',
+    borderRadius: 8,
+    padding: 16,
     alignItems: 'center',
     width: '100%',
+    elevation: 3,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   submitButtonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#121212',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

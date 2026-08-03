@@ -43,16 +43,18 @@ const Withdraw = () => {
     fetchWithdrawals();
   }, []));
 
-  const renderItem = ({ item }) => (
-    <View style={styles.row}>
-        <View style={styles.categoryContainer}>
+  const renderItem = ({ item, index }) => (
+    <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+      <View style={[styles.categoryContainer, styles.rightBorder]}>
         <Text style={styles.cell}>{item.mobile_no}</Text>
         <Text style={styles.dateText}>{item.created_at}</Text>
       </View>
-      <Text style={styles.cell}>{item.amount}</Text>
-      <Text style={styles.cell}>{item.request_money}</Text>
-      {/* <Text style={styles.cell}>{item.withdrawal_status}</Text> */}
-
+      <View style={[styles.cellContainer, styles.rightBorder]}>
+        <Text style={styles.cell}>{item.amount}</Text>
+      </View>
+      <View style={styles.cellContainer}>
+        <Text style={styles.cell}>{item.request_money}</Text>
+      </View>
     </View>
   );
 
@@ -74,17 +76,19 @@ const Withdraw = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Mobile</Text>
-        <Text style={styles.headerText}>Request Money</Text>
-        {/* <Text style={styles.headerText}>Status</Text> */}
+      <View style={styles.tableWrapper}>
+        <View style={styles.header}>
+          <Text style={[styles.headerText, styles.rightBorder]}>Mobile</Text>
+          <Text style={[styles.headerText, styles.rightBorder]}>Amount</Text>
+          <Text style={styles.headerText}>Request</Text>
+        </View>
+        <FlatList
+          data={withdrawals}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
       </View>
-      <FlatList
-        data={withdrawals}
-        keyExtractor={(item) => item.id.toString()} // Assuming each entry has a unique 'id'
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
     </View>
   );
 };
@@ -93,52 +97,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
+  },
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: '#007BFF',
-    padding: 10,
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 10,
+    borderBottomColor: '#FFD700',
+  },
+  headerText: {
+    color: '#FFD700',
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   categoryContainer: {
     flex: 1,
-    marginRight: 8,
+    justifyContent: 'center',
+  },
+  cellContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
-    textAlign: 'center',
-  },
-  headerText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    flex: 1,
+    color: '#A0A0A0',
     textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
-    padding: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: '#333344',
+  },
+  rowEven: {
+    backgroundColor: '#1E1E2C',
+  },
+  rowOdd: {
+    backgroundColor: '#171721',
+  },
+  rightBorder: {
+    borderRightWidth: 1,
+    borderColor: '#333344',
   },
   cell: {
-    flex: 1,
     textAlign: 'center',
-    color: '#000000',
-    textTransform:"uppercase",
-    fontWeight:"500"
+    color: '#FFFFFF',
+    textTransform: "uppercase",
+    fontWeight: "500",
   },
   list: {
     flexGrow: 1,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     textAlign: 'center',
     marginTop: 20,
   },

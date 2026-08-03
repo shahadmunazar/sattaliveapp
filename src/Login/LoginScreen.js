@@ -6,9 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ImageBackground
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const { width } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
   const [mobile, setMobile] = useState('');
@@ -46,7 +53,6 @@ const LoginScreen = ({ navigation }) => {
       });
 
       const data = await response.json();
-      console.log('API response data:', data);
 
       if (data.status === 'success') {
         await AsyncStorage.setItem('userToken', data.token);
@@ -59,7 +65,6 @@ const LoginScreen = ({ navigation }) => {
         setErrors({ form: data.message || 'Login failed' });
       }
     } catch (error) {
-      console.error('API request error:', error);
       setErrors({ form: 'An error occurred. Please try again later.' });
     }
   };
@@ -91,153 +96,209 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        <Text style={styles.title}>Welcome To SATTA LIVE</Text>
-        <Text style={styles.label}>Mobile Number</Text>
-        <TextInput
-          style={[styles.input, errors.mobile && styles.errorBorder]}
-          value={mobile}
-          onChangeText={handleInputChange(setMobile, 'mobile')}
-          placeholder="Enter Mobile Number"
-          placeholderTextColor="gray"
-          keyboardType="phone-pad"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {errors.mobile && <Text style={styles.errorText}>{errors.mobile}</Text>}
-        <Text style={styles.label}>Password</Text>
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={[styles.input, errors.password && styles.errorBorder]}
-            secureTextEntry={hidePassword}
-            value={password}
-            onChangeText={handleInputChange(setPassword, 'password')}
-            placeholder="Enter Password"
-            placeholderTextColor="gray"
-
-          />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.iconContainer}>
-            <Icon
-              name={hidePassword ? 'eye-slash' : 'eye'}
-              style={styles.icon}
+    <ImageBackground
+      source={require('../assests/premium_bg.png')}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assests/main_logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
             />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Sign in to continue to Satta Live</Text>
+
+            <Text style={styles.label}>Mobile Number</Text>
+            <View style={styles.inputWrapper}>
+              <Icon name="phone" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.mobile && styles.errorBorder]}
+                value={mobile}
+                onChangeText={handleInputChange(setMobile, 'mobile')}
+                placeholder="Enter Mobile Number"
+                placeholderTextColor="#888"
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {errors.mobile && <Text style={styles.errorText}>{errors.mobile}</Text>}
+
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.inputWrapper}>
+              <Icon name="lock" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, errors.password && styles.errorBorder]}
+                secureTextEntry={hidePassword}
+                value={password}
+                onChangeText={handleInputChange(setPassword, 'password')}
+                placeholder="Enter Password"
+                placeholderTextColor="#888"
+              />
+              <TouchableOpacity onPress={togglePasswordVisibility} style={styles.iconContainer}>
+                <Icon name={hidePassword ? 'eye-slash' : 'eye'} style={styles.icon} />
+              </TouchableOpacity>
+            </View>
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            {errors.form && <Text style={styles.errorText}>{errors.form}</Text>}
+          </View>
+
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity onPress={() => { }}>
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>LOGIN</Text>
           </TouchableOpacity>
-        </View>
-        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-        {errors.form && <Text style={styles.errorText}>{errors.form}</Text>}
-      </View>
-      <View style={styles.checkboxContainer}>
-        <TouchableOpacity onPress={() => { /* handle forgot password logic here */ }}>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <View style={styles.createNewAccount}>
-        <Text style={styles.createAccountText}>New To Satta Live?</Text>
-        <TouchableOpacity onPress={handleRegister}>
-          <Text style={styles.createAccountLink}>Create an account</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+
+          <View style={styles.createNewAccount}>
+            <Text style={styles.createAccountText}>New To Satta Live?</Text>
+            <TouchableOpacity onPress={handleRegister}>
+              <Text style={styles.createAccountLink}>Create an account</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 };
-
-const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 25,
+    paddingVertical: 40,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+    marginTop: 20,
+  },
+  logo: {
+    width: width * 0.5,
+    height: width * 0.5,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFD700',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#A0A0A0',
+    marginBottom: 30,
     textAlign: 'center',
   },
   inputContainer: {
     width: '100%',
   },
   label: {
-    marginBottom: 5,
-    color: '#000000',
+    marginBottom: 8,
+    color: '#E0E0E0',
+    fontSize: 14,
+    fontWeight: '600',
   },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#CCCCCC',
-    marginBottom: 15,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    color: '#000000',
-  },
-  errorBorder: {
-    borderColor: 'red',
-  },
-  passwordContainer: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
+    backgroundColor: 'rgba(30, 30, 44, 0.7)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333344',
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  inputIcon: {
+    fontSize: 20,
+    color: '#FFD700',
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  errorBorder: {
+    borderColor: '#FF4C4C',
+    borderWidth: 1,
   },
   iconContainer: {
-    position: 'absolute',
-    right: 15,
-    top: 17,
+    padding: 10,
   },
   icon: {
     fontSize: 20,
-    color: '#000',
+    color: '#A0A0A0',
   },
   checkboxContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'flex-end',
     width: '100%',
+    marginBottom: 25,
   },
   forgotPassword: {
-    fontSize: 16,
-    color: '#000',
+    fontSize: 14,
+    color: '#FFD700',
+    fontWeight: '600',
   },
   button: {
     width: '100%',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 5,
-    marginBottom: 15,
-    backgroundColor: 'green',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 25,
+    backgroundColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: '#121212',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
     textAlign: 'center',
+    letterSpacing: 1,
   },
   createNewAccount: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 10,
   },
   createAccountText: {
-    fontSize: 16,
-    color: '#000000',
+    fontSize: 15,
+    color: '#A0A0A0',
   },
   createAccountLink: {
-    fontSize: 16,
-    color: '#000',
-    marginLeft: 5,
+    fontSize: 15,
+    color: '#FFD700',
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     marginTop: -10,
+    marginBottom: 10,
+    fontSize: 12,
+    marginLeft: 5,
   },
 });
 

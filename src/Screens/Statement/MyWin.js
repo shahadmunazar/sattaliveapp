@@ -43,16 +43,20 @@ const MyWin = () => {
     fetchWins();
   }, []));
 
-  const renderItem = ({ item }) => (
-    <View style={styles.row}>
-      <View style={styles.categoryContainer}>
+  const renderItem = ({ item, index }) => (
+    <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+      <View style={[styles.categoryContainer, styles.rightBorder]}>
         <Text style={styles.cell}>{item.Play_Name}</Text>
         <Text style={styles.dateText}>{item.created_at}</Text>
       </View>
-      <Text style={styles.cell}>{item.entered_amount}</Text>
-      <Text style={[styles.cell, item.status === 'won' && styles.wonAmount]}>
-        {item.status === 'won' ? `+${item.won_amount}` : item.won_amount}
-      </Text>
+      <View style={[styles.cellContainer, styles.rightBorder]}>
+        <Text style={styles.cell}>{item.entered_amount}</Text>
+      </View>
+      <View style={styles.cellContainer}>
+        <Text style={[styles.cell, item.status === 'won' && styles.wonAmount]}>
+          {item.status === 'won' ? `+${item.won_amount}` : item.won_amount}
+        </Text>
+      </View>
     </View>
   );
 
@@ -74,11 +78,10 @@ const MyWin = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.table}>
+        <View style={styles.tableWrapper}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Play</Text>
-            <Text style={styles.headerText}>Amount</Text>
+            <Text style={[styles.headerText, styles.rightBorder]}>Play</Text>
+            <Text style={[styles.headerText, styles.rightBorder]}>Amount</Text>
             <Text style={styles.headerText}>Win Amount</Text>
           </View>
           {wins.length === 0 ? (
@@ -86,14 +89,13 @@ const MyWin = () => {
           ) : (
             <FlatList
               data={wins}
-              keyExtractor={(item) => item.id.toString()} // Assuming each entry has a unique 'id'
+              keyExtractor={(item) => item.id.toString()}
               renderItem={renderItem}
               contentContainerStyle={styles.list}
               showsHorizontalScrollIndicator={false}
             />
           )}
         </View>
-      </ScrollView>
     </View>
   );
 };
@@ -102,33 +104,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
   },
-  table: {
-    flexDirection: 'column',
-    paddingBottom: 16,
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#A0A0A0',
     textAlign: 'center',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: '#007BFF',
-    padding: 12,
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 8,
+    borderBottomColor: '#FFD700',
   },
   categoryContainer: {
     flex: 1,
-    marginRight: 8,
+    justifyContent: 'center',
+  },
+  cellContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  rightBorder: {
+    borderRightWidth: 1,
+    borderColor: '#333344',
   },
   headerText: {
-    color: '#FFFFFF',
+    color: '#FFD700',
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
@@ -136,35 +147,39 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    padding: 12,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: '#333344',
+  },
+  rowEven: {
+    backgroundColor: '#1E1E2C',
+  },
+  rowOdd: {
+    backgroundColor: '#171721',
   },
   cell: {
-    flex: 1,
     textAlign: 'center',
-    color: '#000000',
+    color: '#FFFFFF',
     paddingHorizontal: 8,
-    textTransform:"uppercase",
-    fontWeight:"500"
+    textTransform: "uppercase",
+    fontWeight: "500"
   },
   wonAmount: {
-    color: '#28a745', // Green color for won amounts
+    color: '#00FF00', // Green color for won amounts
     fontWeight: 'bold',
   },
   list: {
     flexGrow: 1,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     textAlign: 'center',
     marginTop: 20,
   },
   noDataText: {
     textAlign: 'center',
     fontSize: 18,
-    color: '#888',
+    color: '#A0A0A0',
     marginTop: 20,
   },
 });

@@ -18,4 +18,8 @@ export const store = configureStore({
     // SpeakingData:SpeakingSlice,
     // ListeningData:ListeningSlice
   },
+  middleware: (getDefaultMiddleware) => 
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

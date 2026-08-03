@@ -175,9 +175,12 @@ const DrawerNavigator = () => {
             resultLoginUser?.data?.balance !== null ? <HeaderRight balance={resultLoginUser?.data?.balance} /> : null
           ),
           headerStyle: {
-            backgroundColor: '#fff', // Optional: Customize header background
+            backgroundColor: '#121212', 
+            elevation: 0,
+            shadowOpacity: 0,
           },
-          headerTitleAlign: 'center', // Center the title
+          headerTintColor: '#FFD700', 
+          headerTitleAlign: 'center',
         }}
         
       />
@@ -194,8 +197,10 @@ const styles = StyleSheet.create({
   },
   headerTitleText: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: "#000"
+    fontWeight: '900',
+    color: "#FFD700",
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   headerRightContainer: {
     paddingRight: 15,
@@ -203,7 +208,7 @@ const styles = StyleSheet.create({
   headerRightText: {
     fontSize: 19,
     fontWeight: 'bold',
-    color: 'green',
+    color: '#FFD700',
   },
 });
 

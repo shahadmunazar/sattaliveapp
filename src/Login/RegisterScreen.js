@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Alert, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Alert,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  ImageBackground
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+const { width } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -8,9 +24,11 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [referral_code, setReferral_code] = useState('');
   const [mobileError, setMobileError] = useState('');
+  const [hidePassword, setHidePassword] = useState(true);
+  const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
 
   const validateMobile = (mobile) => {
-    const mobileRegex = /^[0-9]{10}$/; // Adjust the regex as per your requirement
+    const mobileRegex = /^[0-9]{10}$/;
     return mobileRegex.test(mobile);
   };
 
@@ -44,8 +62,6 @@ const RegisterScreen = ({ navigation }) => {
       referral_code,
     };
 
-    console.log('Submitting form with data:', formData);
-
     fetch('https://liveapi.sattalives.com/api/signup', {
       method: 'POST',
       headers: {
@@ -53,126 +69,232 @@ const RegisterScreen = ({ navigation }) => {
       },
       body: JSON.stringify(formData),
     })
-      .then(response => {
-        console.log('API response status:', response.status);
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        console.log('API response data:', data);
-        if (data.status === 'success') { // Check for status === 'success'
+        if (data.status === 'success') {
           Alert.alert('Success', 'Account created successfully');
           navigation.navigate('Login');
         } else {
-          Alert.alert('Error', data.errors?.referral_code[0] || 'Something went wrong');
+          Alert.alert('Error', data.errors?.referral_code?.[0] || 'Something went wrong');
         }
       })
       .catch(error => {
-        console.error('API request error:', error);
         Alert.alert('Error', 'An error occurred. Please try again later.');
       });
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        placeholderTextColor="gray"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Mobile"
-        value={mobile}
-        placeholderTextColor="gray"
-        onChangeText={setMobile}
-        keyboardType="phone-pad"
-      />
-      {mobileError ? <Text style={styles.errorText}>{mobileError}</Text> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="gray"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        placeholderTextColor="gray"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Referral Code"
-        placeholderTextColor="gray"
-        value={referral_code}
-        onChangeText={setReferral_code}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.linkText}>Already Registered? Login</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    <ImageBackground
+      source={require('../assests/premium_bg.png')}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assests/main_logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Join Satta Live today</Text>
+
+          <View style={styles.inputWrapper}>
+            <Icon name="user" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Full Name"
+              placeholderTextColor="#888"
+              value={name}
+              onChangeText={setName}
+              autoCorrect={false}
+            />
+          </View>
+
+          <View style={[styles.inputWrapper, mobileError ? styles.errorBorder : null]}>
+            <Icon name="phone" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Mobile Number"
+              placeholderTextColor="#888"
+              value={mobile}
+              onChangeText={setMobile}
+              keyboardType="phone-pad"
+            />
+          </View>
+          {mobileError ? <Text style={styles.errorText}>{mobileError}</Text> : null}
+
+          <View style={styles.inputWrapper}>
+            <Icon name="lock" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#888"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={hidePassword}
+            />
+            <TouchableOpacity onPress={() => setHidePassword(!hidePassword)} style={styles.iconContainer}>
+              <Icon name={hidePassword ? 'eye-slash' : 'eye'} style={styles.icon} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Icon name="lock" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              placeholderTextColor="#888"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={hideConfirmPassword}
+            />
+            <TouchableOpacity onPress={() => setHideConfirmPassword(!hideConfirmPassword)} style={styles.iconContainer}>
+              <Icon name={hideConfirmPassword ? 'eye-slash' : 'eye'} style={styles.icon} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Icon name="gift" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Referral Code (Optional)"
+              placeholderTextColor="#888"
+              value={referral_code}
+              onChangeText={setReferral_code}
+              autoCapitalize="characters"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleSubmit} activeOpacity={0.8}>
+            <Text style={styles.buttonText}>SIGN UP</Text>
+          </TouchableOpacity>
+
+          <View style={styles.footerContainer}>
+            <Text style={styles.footerText}>Already Registered?</Text>
+            <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.linkText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 25,
+    paddingVertical: 40,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  logo: {
+    width: width * 0.45,
+    height: width * 0.45,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFD700',
+    marginBottom: 5,
     textAlign: 'center',
-    color: '#000000',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#A0A0A0',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(30, 30, 44, 0.7)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333344',
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  inputIcon: {
+    fontSize: 20,
+    color: '#FFD700',
+    marginRight: 10,
+    width: 20,
+    textAlign: 'center',
   },
   input: {
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 10,
-    borderRadius: 5,
-    color: '#000000',
+    flex: 1,
+    paddingVertical: 14,
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  errorBorder: {
+    borderColor: '#FF4C4C',
+  },
+  iconContainer: {
+    padding: 10,
+  },
+  icon: {
+    fontSize: 20,
+    color: '#A0A0A0',
   },
   errorText: {
-    color: 'red',
-    marginBottom: 12,
+    color: '#FF4C4C',
+    marginTop: -10,
+    marginBottom: 10,
+    fontSize: 12,
+    marginLeft: 5,
   },
   button: {
     width: '100%',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 5,
-    marginBottom: 15,
-    backgroundColor: 'green',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 25,
+    marginTop: 10,
+    backgroundColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: '#121212',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
     textAlign: 'center',
+    letterSpacing: 1,
   },
-  link: {
-    marginTop: 16,
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
   },
+  footerText: {
+    fontSize: 15,
+    color: '#A0A0A0',
+  },
+  link: {
+    marginLeft: 8,
+  },
   linkText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: "600"
+    color: '#FFD700',
+    fontSize: 15,
+    fontWeight: 'bold',
   },
 });
 

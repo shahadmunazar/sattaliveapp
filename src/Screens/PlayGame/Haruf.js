@@ -29,9 +29,9 @@ const Haruf = () => {
           console.log("%%%%%%%%", result)
           const data = result.data;
           console.log("wertyui", data.user_amount)
-          setWalletBalance(data.user_amount);
-          setAndarHarafInputs(data.play_game.ander_harup.map(item => ({ number: item.number, value: item.entered_amount || '' })));
-          setBaharHarafInputs(data.play_game.bahar_harup.map(item => ({ number: item.number, value: item.entered_amount || '' })));
+          setWalletBalance(data?.user_amount || 0);
+          setAndarHarafInputs((data?.play_game?.ander_harup || []).map(item => ({ number: item.number, value: item.entered_amount || '' })));
+          setBaharHarafInputs((data?.play_game?.bahar_harup || []).map(item => ({ number: item.number, value: item.entered_amount || '' })));
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -161,24 +161,33 @@ const Haruf = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   scrollContainer: {
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#1E1E2C',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 16,
     marginTop: 16,
-    marginHorizontal: 20
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   balanceText: {
-    color: '#fff',
+    color: '#FFD700',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   categoryContainer: {
     marginBottom: 16,
@@ -188,10 +197,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryHeading: {
-    color: '#000',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   inputsContainer: {
     flexDirection: 'row',
@@ -204,45 +213,49 @@ const styles = StyleSheet.create({
     width: '15%',
   },
   serialNumber: {
-    color: '#000',
-    fontSize: 12,
+    color: '#A0A0A0',
+    fontSize: 14,
+    marginBottom: 4,
+    fontWeight: '500',
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1E1E2C',
     width: '100%',
-    height: 40,
+    height: 45,
     textAlign: 'center',
-    borderRadius: 4,
+    borderRadius: 8,
     fontSize: 16,
-    borderColor: '#ccc',
+    borderColor: '#333344',
     borderWidth: 1,
-    color:"#000"
+    color: "#fff"
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: '#1E1E2C',
     padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#333344',
+    elevation: 10,
   },
   totalText: {
-    color: '#000',
-    fontSize: 16,
+    color: '#FFD700',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   submitButton: {
-    backgroundColor: '#28a745',
-    padding: 10,
+    backgroundColor: '#FFD700',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
   },
   submitButtonText: {
-    color: '#fff',
+    color: '#121212',
     fontSize: 16,
     fontWeight: 'bold',
   },

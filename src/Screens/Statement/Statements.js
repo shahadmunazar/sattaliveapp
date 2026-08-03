@@ -43,7 +43,7 @@ const Statements = () => {
     fetchTransactions();
   }, []));
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     let amountText = item.amount;
     let amountStyle = styles.cell;
 
@@ -59,8 +59,8 @@ const Statements = () => {
     }
 
     return (
-      <View style={styles.row}>
-        <View style={styles.categoryContainer}>
+      <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+        <View style={[styles.categoryContainer, styles.rightBorder]}>
           <Text style={styles.cell}>{item.description}</Text>
           <Text style={styles.dateText}>{item.created_at_date}</Text>
         </View>
@@ -87,12 +87,18 @@ const Statements = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id.toString()} // Assuming each transaction has a unique 'id'
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
+      <View style={styles.tableWrapper}>
+        <View style={styles.header}>
+          <Text style={[styles.headerText, styles.rightBorder]}>Description</Text>
+          <Text style={styles.headerText}>Amount</Text>
+        </View>
+        <FlatList
+          data={transactions}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
+      </View>
     </View>
   );
 };
@@ -101,46 +107,78 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
+  },
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFD700',
+  },
+  headerText: {
+    color: '#FFD700',
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   categoryContainer: {
     flex: 1,
-    marginRight: 8,
+    justifyContent: 'center',
+  },
+  rightBorder: {
+    borderRightWidth: 1,
+    borderColor: '#333344',
   },
   cell: {
     flex: 1,
-    textAlign: 'left',
-    color: '#000000',
+    textAlign: 'center',
+    color: '#FFFFFF',
     paddingHorizontal: 8,
     textTransform: 'uppercase',
     fontWeight: '500',
+    justifyContent: 'center',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
-    textAlign: 'left',
+    color: '#A0A0A0',
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
-    padding: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: '#333344',
+  },
+  rowEven: {
+    backgroundColor: '#1E1E2C',
+  },
+  rowOdd: {
+    backgroundColor: '#171721',
   },
   list: {
     flexGrow: 1,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     textAlign: 'center',
     marginTop: 20,
   },
   creditAmount: {
-    color: 'green',
+    color: '#00FF00',
     fontWeight: 'bold',
   },
   debitAmount: {
-    color: 'red',
+    color: '#FF4C4C',
     fontWeight: 'bold',
   },
 });

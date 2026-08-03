@@ -200,12 +200,13 @@ const HomeNew = () => {
             <Text style={styles.tableHeaderText}>Yesterday</Text>
             <Text style={styles.tableHeaderText}>Today</Text>
           </View>
-          <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            style={styles.list}
-          />
+          <View style={styles.list}>
+            {data.map((item, index) => (
+              <React.Fragment key={index.toString()}>
+                {renderItem({ item })}
+              </React.Fragment>
+            ))}
+          </View>
         </View>
       </ScrollView>
       {/* Help Icon */}
@@ -219,119 +220,138 @@ const HomeNew = () => {
 const styles = StyleSheet.create({
   scrollViewContent: {
     alignItems: 'center',
-    paddingVertical: 0,
-    backgroundColor: "#fff"
+    paddingVertical: 10,
+    backgroundColor: "#121212"
   },
   helpIconContainer: {
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#25D366', // WhatsApp green color
+    backgroundColor: '#FFD700', // Gold color for premium look
     borderRadius: 50,
-    padding: 10,
+    padding: 12,
     elevation: 5,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   card: {
-    backgroundColor: 'black',
-    padding: 10,
-    borderRadius: 10,
+    backgroundColor: '#1E1E2C',
+    padding: 15,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#FFD700',
     alignItems: 'center',
     width: '90%',
     margin: '3%',
-    elevation: 3,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   card2: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 10,
+    backgroundColor: '#1E1E2C',
+    padding: 15,
+    borderRadius: 16,
     width: '90%',
     margin: '3%',
+    borderWidth: 1,
+    borderColor: '#333344',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   heading: {
-    color: 'white',
-    fontSize: 26,
+    color: '#A0A0A0',
+    fontSize: 22,
+    fontWeight: '600',
     marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   number: {
-    color: 'white',
-    fontSize: 60,
-    fontWeight: 'bold',
+    color: '#FFD700',
+    fontSize: 72,
+    fontWeight: '900',
     marginBottom: 10,
   },
   time: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 18,
+    fontWeight: '500',
   },
   heading2: {
-    color: 'red',
-    fontSize: 19,
-    fontWeight: '400',
-    marginBottom: 10,
+    color: '#FF4C4C',
+    fontSize: 17,
+    fontWeight: '500',
+    lineHeight: 24,
+    marginBottom: 5,
   },
   card3: {
-    backgroundColor: 'white',
+    backgroundColor: '#1E1E2C',
     padding: 0,
-    borderRadius: 10,
+    borderRadius: 16,
     width: '90%',
     margin: '3%',
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
   headerContainer: {
-    backgroundColor: 'green',
-    borderTopLeftRadius: 7,
-    borderTopRightRadius: 7,
-    padding: 10,
+    backgroundColor: '#FFD700',
+    padding: 15,
   },
   header: {
     textAlign: 'center',
-    color: 'white',
+    color: '#121212',
     fontSize: 18,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   separator: {
-    height: .5,
-    backgroundColor: 'white',
+    height: 1,
+    backgroundColor: '#333344',
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: 'green',
-    paddingVertical: 10,
+    backgroundColor: '#121212',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'white',
+    borderBottomColor: '#333344',
   },
   tableHeaderText: {
     flex: 1,
-    color: 'white',
+    color: '#FFD700',
     textAlign: 'center',
-    fontSize: 18
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   list: {
-    marginTop: 10,
-    color:"black"
+    marginTop: 0,
+    color:"#FFF"
   },
   row: {
     flexDirection: 'row',
-    paddingVertical: 10,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#333344',
   },
   cell: {
     flex: 1,
     textAlign: 'center',
-    color:"black",
-    padding:2
+    color: "#E0E0E0",
+    fontSize: 14,
+    padding: 2
   },
   loaderContainer: {
     flex: 1,

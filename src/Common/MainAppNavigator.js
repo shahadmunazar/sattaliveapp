@@ -17,7 +17,12 @@ const Stack = createStackNavigator();
 const MainAppNavigator = () => {
     return (
         <Stack.Navigator
-            screenOptions={{ headerShown: false }}
+            screenOptions={{ 
+                headerShown: false,
+                headerStyle: { backgroundColor: '#121212', elevation: 0, shadowOpacity: 0, borderBottomWidth: 1, borderBottomColor: '#333344' },
+                headerTintColor: '#FFD700',
+                headerTitleStyle: { fontWeight: 'bold' }
+            }}
         >
             <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />

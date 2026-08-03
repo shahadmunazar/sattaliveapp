@@ -42,7 +42,7 @@ const AddMoney = () => {
     fetchAddMoneyList();
   }, []));
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     let amountText = item.amount;
     let amountStyle = styles.cell;
 
@@ -56,8 +56,8 @@ const AddMoney = () => {
     }
 
     return (
-      <View style={styles.row}>
-        <View style={styles.descriptionContainer}>
+      <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+        <View style={[styles.descriptionContainer, styles.rightBorder]}>
           <Text style={styles.descriptionText}>{item.description}</Text>
           <Text style={styles.dateText}>{item.created_at}</Text>
         </View>
@@ -84,12 +84,18 @@ const AddMoney = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={addMoneyList}
-        keyExtractor={(item) => item.id.toString()} // Assuming each entry has a unique 'id'
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
+      <View style={styles.tableWrapper}>
+        <View style={styles.header}>
+          <Text style={[styles.headerText, styles.rightBorder, { flex: 2 }]}>Description</Text>
+          <Text style={[styles.headerText, { flex: 1 }]}>Amount</Text>
+        </View>
+        <FlatList
+          data={addMoneyList}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
+      </View>
     </View>
   );
 };
@@ -98,45 +104,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
+  },
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFD700',
+  },
+  headerText: {
+    color: '#FFD700',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   row: {
     flexDirection: 'row',
-    padding: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'flex-start',
+    borderBottomColor: '#333344',
+    alignItems: 'center',
+  },
+  rowEven: {
+    backgroundColor: '#1E1E2C',
+  },
+  rowOdd: {
+    backgroundColor: '#171721',
+  },
+  rightBorder: {
+    borderRightWidth: 1,
+    borderColor: '#333344',
   },
   descriptionContainer: {
     flex: 2,
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
   descriptionText: {
     fontSize: 16,
-    color: '#000000',
-    fontWeight:"500"
+    color: '#FFFFFF',
+    fontWeight:"500",
+    textAlign: 'center',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#A0A0A0',
     marginTop: 4,
+    textAlign: 'center',
   },
   cell: {
     textAlign: 'center',
     flex: 1,
+    justifyContent: 'center',
   },
   creditAmount: {
-    color: 'green',
+    color: '#00FF00',
     fontWeight:"500"
   },
   debitAmount: {
-    color: 'red',
+    color: '#FF4C4C',
   },
   list: {
     flexGrow: 1,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     textAlign: 'center',
     marginTop: 20,
   },

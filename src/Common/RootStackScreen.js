@@ -23,13 +23,13 @@ const PlayStack = () => (
 
 const WalletStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Wallet" component={Wallet} />
+    <Stack.Screen name="WalletScreen" component={Wallet} />
   </Stack.Navigator>
 );
 
 const GamingStack = ({ navigation }) => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Gaming">
+    <Stack.Screen name="GamingScreen">
       {(props) => <GamingScreen {...props} navigation={navigation} />}
     </Stack.Screen>
   </Stack.Navigator>
@@ -60,8 +60,16 @@ const RootStackScreen = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'green',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#FFD700',
+        tabBarInactiveTintColor: '#A0A0A0',
+        tabBarStyle: {
+          backgroundColor: '#1E1E2C',
+          borderTopWidth: 1,
+          borderTopColor: '#333344',
+          height: 65,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
         headerShown: false, // This hides the header for all screens in the tab navigator
       })}
     >

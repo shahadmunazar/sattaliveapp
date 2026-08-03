@@ -1,5 +1,5 @@
 
-import {StyleSheet, View, Image, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Image, TouchableOpacity, ImageBackground} from 'react-native';
 import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,18 +37,21 @@ const SplashScreen = () => {
   },[])
 
   return (
-    <View style={styles.container}>
+    <ImageBackground 
+      source={require('../assests/premium_bg.png')} 
+      style={styles.container}
+    >
       <TouchableOpacity
         style={styles.touchableContainer}>
         <View style={styles.imageContainer}>
           <Image
-            source={require('../assests/splash_logo.png')}
+            source={require('../assests/main_logo.png')}
             resizeMode="contain"
             style={styles.image}
           />
         </View>
       </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -57,7 +60,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff', // Set the background color if needed
   },
   touchableContainer: {
     justifyContent: 'center',
@@ -72,8 +74,8 @@ const styles = StyleSheet.create({
     height: hp('100%'),
   },
   image: {
-    width: wp('80%'), // Adjust the width as needed
-    height: hp('80%'), // Adjust the height as needed
+    width: wp('60%'),
+    height: wp('60%'),
   },
 });
 

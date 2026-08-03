@@ -470,8 +470,8 @@ const Jayantri = () => {
         const result = await response.json();
         if (result.status === 200) {
           const data = result.data;
-          setWalletBalance(data.user_amount || 0); // Ensure walletBalance is set to a number
-          setInputValues(data.play_game.jodi_harup.map(item => {
+          setWalletBalance(data?.user_amount || 0); // Ensure walletBalance is set to a number
+          setInputValues((data?.play_game?.jodi_harup || []).map(item => {
             const formattedNumber = item.number.toString().padStart(2, '0');
             return { number: formattedNumber === '100' ? '00' : formattedNumber, value: item.entered_amount || '' };
           }));
@@ -596,21 +596,30 @@ const Jayantri = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   card: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#1E1E2C',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 16,
     marginTop: 16,
     marginHorizontal: 20,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
   balanceText: {
-    color: '#fff',
+    color: '#FFD700',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -626,41 +635,46 @@ const styles = StyleSheet.create({
     width: '18%',
   },
   rowNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: "#000", // Changed to black
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: "#A0A0A0",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderColor: '#333344',
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
     padding: 10,
     width: '100%',
     textAlign: 'center',
-    color: '#000', // Changed to black
+    color: '#fff',
   },
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#f8f8f8',
+    padding: 16,
+    backgroundColor: '#1E1E2C',
+    borderTopWidth: 1,
+    borderTopColor: '#333344',
   },
   totalText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: "#000", // Changed to black
+    color: "#FFD700",
   },
   submitButton: {
-    backgroundColor: 'green',
-    borderRadius: 5,
-    padding: 10,
+    backgroundColor: '#FFD700',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     alignItems: 'center',
   },
   submitButtonText: {
-    color: 'white',
+    color: '#121212',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

@@ -47,7 +47,7 @@ const PlayGames = () => {
 
   console.log("games" , games);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     let amountText = item.entered_amount;
     let playName = item.Playing_Name.charAt(0);
     let amountStyle = styles.cell;
@@ -62,13 +62,17 @@ const PlayGames = () => {
     }
 
     return (
-      <View style={styles.row}>
-        <View style={styles.categoryContainer}>
+      <View style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+        <View style={[styles.categoryContainer, styles.rightBorder]}>
           <Text style={styles.cell}>{item.category_name}</Text>
           <Text style={styles.dateText}>{item.created_at}</Text>
         </View>
-        <Text style={styles.cell}>{item.entered_number}({item.play_type == null ? playName : item.play_type == "bahar_harup" ? "B" +" "+ playName :"A" + " "+ playName})</Text>
-        <Text style={amountStyle}>{amountText}</Text>
+        <View style={[styles.cellContainer, styles.rightBorder]}>
+          <Text style={styles.cell}>{item.entered_number}({item.play_type == null ? playName : item.play_type == "bahar_harup" ? "B" +" "+ playName :"A" + " "+ playName})</Text>
+        </View>
+        <View style={styles.cellContainer}>
+          <Text style={amountStyle}>{amountText}</Text>
+        </View>
       </View>
     );
   };
@@ -91,11 +95,10 @@ const PlayGames = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.table}>
+        <View style={styles.tableWrapper}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Game</Text>
-            <Text style={styles.headerText}>No</Text>
+            <Text style={[styles.headerText, styles.rightBorder]}>Game</Text>
+            <Text style={[styles.headerText, styles.rightBorder]}>No</Text>
             <Text style={styles.headerText}>Amount</Text>
           </View>
           <FlatList
@@ -105,7 +108,6 @@ const PlayGames = () => {
             contentContainerStyle={styles.list}
           />
         </View>
-      </ScrollView>
     </View>
   );
 };
@@ -114,67 +116,79 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
   },
-  table: {
-    width: '100%',
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
-    backgroundColor: '#007BFF',
-    padding: 10,
+    backgroundColor: '#1E1E2C',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 10,
-    width: '100%',
+    borderBottomColor: '#FFD700',
   },
   headerText: {
-    color: '#FFFFFF',
+    color: '#FFD700',
     fontWeight: 'bold',
     flex: 1,
     textAlign: 'center',
     paddingHorizontal: 8,
   },
-  row: {
-    flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    backgroundColor: '#FFFFFF',
-    width: '100%',
-  },
   categoryContainer: {
     flex: 1,
-    marginRight: 8,
+    justifyContent: 'center',
+  },
+  cellContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  rightBorder: {
+    borderRightWidth: 1,
+    borderColor: '#333344',
+  },
+  row: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333344',
+  },
+  rowEven: {
+    backgroundColor: '#1E1E2C',
+  },
+  rowOdd: {
+    backgroundColor: '#171721',
   },
   cell: {
-    flex: 1,
     textAlign: 'center',
     paddingHorizontal: 4,
-    color: '#000000',
+    color: '#FFFFFF',
     textTransform: 'uppercase',
     fontWeight: '500',
   },
   dateText: {
     fontSize: 12,
-    color: '#6c757d',
+    color: '#A0A0A0',
     textAlign: 'center',
   },
   list: {
     flexGrow: 1,
   },
   errorText: {
-    color: 'red',
+    color: '#FF4C4C',
     textAlign: 'center',
     marginTop: 20,
   },
   lostAmount: {
-    color: 'red',
+    color: '#FF4C4C',
   },
   wonAmount: {
-    color: 'green',
+    color: '#00FF00',
   },
 });
 

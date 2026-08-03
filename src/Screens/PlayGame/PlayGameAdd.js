@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   inputRow: {
     flexDirection: 'row',
@@ -138,54 +138,65 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 8,
+    borderColor: '#333344',
+    backgroundColor: '#1E1E2C',
+    borderRadius: 8,
+    padding: 12,
     marginRight: 8,
-    color:"#000"
+    color: "#fff"
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 8,
+    padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#333344',
   },
   itemText: {
     flex: 1,
-    color:"#000"
+    color: "#A0A0A0",
+    fontSize: 16,
   },
   removeButton: {
-    backgroundColor: 'red',
-    padding: 6,
-    borderRadius: 4,
+    backgroundColor: '#FF4C4C',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
   removeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  saveButton: {
-    backgroundColor: '#28a745',
-    padding: 16,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
+  saveButton: {
+    backgroundColor: '#FFD700',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+    elevation: 3,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  saveButtonText: {
+    color: '#121212',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
   addButton: {
-    backgroundColor: 'black',
-    padding: 10,
-    borderRadius: 4,
+    backgroundColor: '#FFD700',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addButtonText: {
-    color: 'white',
+    color: '#121212',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

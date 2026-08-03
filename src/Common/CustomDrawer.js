@@ -149,77 +149,77 @@ const CustomDrawer = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="person" size={20} color="white" />
-        <Text style={styles.userName}>{name}</Text>
-        <Text style={styles.userMobile}>{mobile}</Text>
+        <Ionicons name="person-circle" size={60} color="#FFD700" style={styles.userIcon} />
+        <Text style={styles.userName}>{name || 'Satta User'}</Text>
+        <Text style={styles.userMobile}>{mobile || '+91 0000000000'}</Text>
       </View>
       <View style={styles.drawerContent}>
         <TouchableOpacity onPress={() => navigation.navigate('HomeNew')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="home" size={24} color="green" />
+            <Ionicons name="home" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Home</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => navigateToGamingScreen('Two', 'Two')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="game-controller" size={24} color="green" />
+            <Ionicons name="game-controller" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>My Play History</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => navigateToGamingScreen('Five', 'Five')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="wallet" size={24} color="green" />
+            <Ionicons name="wallet" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>My Winnings</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => navigateToGamingScreen('Three', 'Three')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="document-text" size={24} color="green" />
+            <Ionicons name="cash" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Add Money List</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => navigateToGamingScreen('Four', 'Four')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="document-text" size={24} color="green" />
+            <Ionicons name="card" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Withdraw Money List</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={handleChangePassword}>
           <View style={styles.drawerItem}>
-            <Ionicons name="document-text" size={24} color="green" />
+            <Ionicons name="key" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Change Password</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={handleShare}>
           <View style={styles.drawerItem}>
-            <Ionicons name="share-social" size={24} color="green" />
+            <Ionicons name="share-social" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Share & Earn</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={handleHelp}>
           <View style={styles.drawerItem}>
-            <Ionicons name="help-circle" size={24} color="green" />
+            <Ionicons name="help-circle" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Help</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={() => navigation.navigate('TermAndConditions')}>
           <View style={styles.drawerItem}>
-            <Ionicons name="lock-closed" size={24} color="green" />
+            <Ionicons name="lock-closed" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Terms & Conditions</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.separator} />
         <TouchableOpacity onPress={handleLogout}>
           <View style={styles.drawerItem}>
-            <Ionicons name="log-out" size={24} color="green" />
+            <Ionicons name="log-out" size={24} color="#FFD700" />
             <Text style={styles.drawerItemText}>Logout</Text>
           </View>
         </TouchableOpacity>
@@ -290,78 +290,85 @@ const CustomDrawer = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   header: {
-    backgroundColor: 'green',
+    backgroundColor: '#1E1E2C',
     alignItems: 'center',
-    paddingVertical: 5,
-    marginBottom: 20,
+    paddingVertical: 30,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFD700',
+  },
+  userIcon: {
+    marginBottom: 10,
   },
   userName: {
-    color: 'white',
-    fontSize: 18,
+    color: '#FFD700',
+    fontSize: 22,
     fontWeight: 'bold',
-    marginTop: 10,
   },
   userMobile: {
-    color: 'white',
-    fontSize: 14,
+    color: '#A0A0A0',
+    fontSize: 16,
     marginTop: 5,
   },
   drawerContent: {
-    marginTop: 10,
+    marginTop: 5,
   },
   drawerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderBottomWidth: 0.3,
-    borderColor: 'gray',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: '#333344',
   },
   drawerItemText: {
-    fontSize: 18,
-    marginLeft: 10,
-    color: "#000"
+    fontSize: 16,
+    marginLeft: 15,
+    color: "#FFFFFF",
+    fontWeight: '500',
   },
   separator: {
-    height: 1,
-    backgroundColor: 'white',
+    height: 0,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
+    width: '85%',
+    backgroundColor: '#1E1E2C',
+    padding: 25,
+    borderRadius: 12,
     elevation: 5,
+    borderWidth: 1,
+    borderColor: '#333344',
   },
   modalTitle: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 20,
+    marginBottom: 20,
     fontWeight: 'bold',
-    color:"#000"
+    color: "#FFD700",
+    textAlign: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
+    backgroundColor: '#121212',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333344',
   },
   input: {
     flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginRight: 10,
-    paddingHorizontal: 10,
-    color:"#000"
+    height: 45,
+    paddingHorizontal: 15,
+    color: "#fff",
   },
   modalButtons: {
     flexDirection: 'row',

@@ -3,12 +3,19 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 const Wallet = () => {
   const navigation = useNavigation();
+  const { result: resultLoginUser } = useSelector((state) => state.login.LoginUser);
+  const balance = resultLoginUser?.data?.balance || 0;
 
   return (
     <View style={styles.container}>
+      <View style={styles.balanceCard}>
+        <Text style={styles.balanceTitle}>Available Balance</Text>
+        <Text style={styles.balanceAmount}>₹ {balance}</Text>
+      </View>
       {/* <Text style={styles.heading}>Add Money</Text>
 
       <View style={styles.cardRow}>
@@ -78,14 +85,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
+  },
+  balanceCard: {
+    backgroundColor: '#FFD700',
+    padding: 25,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginBottom: 20,
+    elevation: 8,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+  },
+  balanceTitle: {
+    fontSize: 16,
+    color: '#121212',
+    textTransform: 'uppercase',
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  balanceAmount: {
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#121212',
   },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
     marginTop: 16,
-    color: 'gray'
+    color: '#FFD700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   cardRow: {
     flexDirection: 'row',
@@ -96,20 +130,26 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    padding: 10,
+    backgroundColor: '#1E1E2C',
+    padding: 15,
     margin: 10,
-    borderRadius: 8,
-    elevation: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333344',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   icon: {
     marginBottom: 8,
-    color: 'green'
+    color: '#FFD700',
   },
   cardText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000'
+    color: '#FFFFFF',
   },
   atmImage: {
     width: '100%',

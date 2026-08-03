@@ -201,10 +201,11 @@ const GamingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#121212',
   },
   tabContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: 'green',
+    borderBottomColor: '#333344',
   },
   tab: {
     padding: 10,
@@ -212,15 +213,15 @@ const styles = StyleSheet.create({
   },
   selectedTab: {
     borderBottomWidth: 2,
-    borderBottomColor: 'green',
+    borderBottomColor: '#FFD700',
   },
   tabLabel: {
     fontSize: 16,
-    color: '#000',
+    color: '#A0A0A0',
   },
   selectedTabLabel: {
     fontWeight: 'bold',
-    color: 'green',
+    color: '#FFD700',
   },
   scrollView: {
     // flex: -0, // Make sure the ScrollView takes up the remaining space
