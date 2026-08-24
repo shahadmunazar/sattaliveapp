@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { LoginUser } from '../Redux/Reducers/AuthSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Colors from '../Theme/Colors';
+import CustomAlert from '../Components/CustomAlert';
 
 const HomeNew = () => {
   const [currentTime, setCurrentTime] = useState('');
@@ -13,6 +14,7 @@ const HomeNew = () => {
   const [dataContent, setDataContent] = useState([]);
   const [optenData, setOptenData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [exitModalVisible, setExitModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useDispatch();
@@ -33,17 +35,16 @@ const HomeNew = () => {
     }, [])
   );
 
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Exit App', 'Are you sure you want to exit?', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', onPress: () => BackHandler.exitApp() },
-      ], { cancelable: true });
-      return true;
-    };
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        setExitModalVisible(true);
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => backHandler.remove();
+    }, [])
+  );
 
   const fetchData = async () => {
     const token = await AsyncStorage.getItem('userToken');
@@ -190,6 +191,18 @@ const HomeNew = () => {
       <TouchableOpacity style={styles.fab} onPress={handleHelp} activeOpacity={0.8}>
         <Icon name="whatsapp" size={28} color="#121212" />
       </TouchableOpacity>
+
+      <CustomAlert
+        visible={exitModalVisible}
+        title="Exit App"
+        message="Are you sure you want to exit the application?"
+        type="warning"
+        onClose={() => setExitModalVisible(false)}
+        showCancelButton={true}
+        cancelText="Cancel"
+        buttonText="Exit"
+        onConfirm={() => BackHandler.exitApp()}
+      />
     </View>
   );
 };

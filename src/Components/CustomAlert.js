@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, Animated } from 'react
 import Icon from 'react-native-vector-icons/Feather';
 import Colors from '../Theme/Colors';
 
-const CustomAlert = ({ visible, title, message, type = 'error', onClose, buttonText = 'OK' }) => {
+const CustomAlert = ({ visible, title, message, type = 'error', onClose, buttonText = 'OK', showCancelButton = false, cancelText = 'Cancel', onConfirm }) => {
   // Select icon and colors based on type (error, success, warning, info)
   let iconName = 'alert-circle';
   let iconColor = Colors.error;
@@ -36,9 +36,20 @@ const CustomAlert = ({ visible, title, message, type = 'error', onClose, buttonT
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
           
-          <TouchableOpacity style={[styles.button, { backgroundColor: iconColor }]} onPress={onClose} activeOpacity={0.8}>
-            <Text style={styles.buttonText}>{buttonText}</Text>
-          </TouchableOpacity>
+          {showCancelButton ? (
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.cancelButton} onPress={onClose} activeOpacity={0.8}>
+                <Text style={styles.cancelButtonText}>{cancelText}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.confirmButton, { backgroundColor: iconColor }]} onPress={onConfirm || onClose} activeOpacity={0.8}>
+                <Text style={styles.buttonText}>{buttonText}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={[styles.button, { backgroundColor: iconColor }]} onPress={onClose} activeOpacity={0.8}>
+              <Text style={styles.buttonText}>{buttonText}</Text>
+            </TouchableOpacity>
+          )}
 
         </View>
       </View>
@@ -97,6 +108,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    marginRight: 8,
+  },
+  cancelButtonText: {
+    color: Colors.primaryText,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  confirmButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
   buttonText: {
     color: '#121212',
