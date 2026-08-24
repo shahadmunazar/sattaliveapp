@@ -97,7 +97,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assests/premium_bg.png')}
+      source={require('../assests/premium_bg.jpg')}
       style={styles.container}
     >
       <KeyboardAvoidingView
