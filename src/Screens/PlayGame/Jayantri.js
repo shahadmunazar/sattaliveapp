@@ -1,522 +1,115 @@
-
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-// import { useRoute } from '@react-navigation/native';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// const Jayantri = () => {
-//   const [inputValues, setInputValues] = useState(Array(100).fill(null).map((_, index) => ({ number: index + 1, value: '' })));
-//   const [totalAmount, setTotalAmount] = useState(0);
-//   const [walletBalance, setWalletBalance] = useState(0);
-//   const [loading, setLoading] = useState(false);
-//   const route = useRoute();
-//   const { categoryId, subCategoryId } = route.params;
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const token = await AsyncStorage.getItem('userToken');
-//         const response = await fetch(`https://liveapi.sattalives.com/api/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         });
-//         const result = await response.json();
-//         if (result.status === 200) {
-//           const data = result.data;
-//           setWalletBalance(data.user_amount || 0); // Ensure walletBalance is set to a number
-//           setInputValues(data.play_game.jodi_harup.map(item => ({ number: item.number, value: item.entered_amount || '' })));
-//         }
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-//     };
-
-//     fetchData();
-//   }, [categoryId, subCategoryId]);
-
-//   const handleInputChange = (index, text) => {
-//     const newValues = [...inputValues];
-//     newValues[index] = { ...newValues[index], value: text }; // Ensure the specific index is updated
-//     setInputValues(newValues);
-//     updateTotalAmount(newValues);
-//   };
-
-//   const updateTotalAmount = (values) => {
-//     const total = values.reduce((sum, item) => sum + (parseFloat(item.value) || 0), 0);
-//     setTotalAmount(total);
-//   };
-
-//   const handleSubmit = async () => {
-//     setLoading(true);
-//     try {
-//       const token = await AsyncStorage.getItem('userToken');
-
-//       // Create enteredData with valid numbers and serial numbers
-//       const enteredData = inputValues
-//         .filter(item => parseFloat(item.value) > 0) // Filter out items with non-positive values
-//         .map(item => ({
-//           number: item.number,
-//           amount: parseFloat(item.value) || 0,
-//         }));
-
-//       // If no valid data, show an alert and exit
-//       if (enteredData.length === 0) {
-//         Alert.alert('Validation Error', 'Please enter valid amounts before submitting.');
-//         return;
-//       }
-
-//       // Create the payload
-//       const payload = {
-//         category_id: categoryId,
-//         subcategory_id: subCategoryId,
-//         subcategory_name: "Jantri",
-//         entered_data: enteredData,
-//       };
-
-//       // Log the payload to the console
-//       console.log("Payload to be submitted:", JSON.stringify(payload, null, 2));
-
-//       // Send the request
-//       const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//         },
-//         body: JSON.stringify(payload),
-//       });
-
-//       // Parse the response
-//       const data = await response.json();
-
-//       if (response.ok) {
-//         Alert.alert('Success', 'Data submitted successfully!');
-//       } else {
-//         Alert.alert('Error', data.error || 'An error occurred');
-//       }
-//     } catch (error) {
-//       console.error('Error submitting data:', error);
-//       Alert.alert('Error', error.message || 'An error occurred');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const renderInputs = () => {
-//     const rows = [];
-//     for (let i = 0; i < 100; i += 5) {
-//       rows.push(
-//         <View key={i} style={styles.row}>
-//           {Array.from({ length: 5 }, (_, j) => (
-//             <View key={i + j} style={styles.inputContainer}>
-//               <Text style={styles.rowNumber}>{inputValues[i + j].number}</Text>
-//               <TextInput
-//                 style={styles.input}
-//                 keyboardType="numeric"
-//                 value={inputValues[i + j].value}
-//                 onChangeText={(text) => handleInputChange(i + j, text)}
-//               />
-//             </View>
-//           ))}
-//         </View>
-//       );
-//     }
-//     return rows;
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.card}>
-//         <Text style={styles.balanceText}>Available Wallet Balance: {walletBalance}</Text>
-//       </View>
-//       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-//         {renderInputs()}
-//       </ScrollView>
-//       <View style={styles.bottomContainer}>
-//         <Text style={styles.totalText}>Total Amount: {totalAmount.toFixed(2)}</Text>
-//         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-//           <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     // padding: 20,
-//     backgroundColor: '#fff',
-//   },
-//   card: {
-//     backgroundColor: '#28a745',
-//     padding: 16,
-//     borderRadius: 8,
-//     marginBottom: 16,
-//     marginTop: 16,
-//     marginHorizontal: 20
-//   },
-//   balanceText: {
-//     color: '#fff',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     textAlign: 'center',
-//   },
-//   scrollViewContent: {
-//     flexGrow: 1,
-//     padding:20
-//   },
-//   row: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginBottom: 10,
-//   },
-//   inputContainer: {
-//     alignItems: 'center',
-//     width: '18%',
-//   },
-//   rowNumber: {
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     marginBottom: 5,
-//     color: "#000", // Changed to black
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 5,
-//     padding: 10,
-//     width: '100%',
-//     textAlign: 'center',
-//     color: '#000', // Changed to black
-//   },
-//   bottomContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     padding: 15,
-//     backgroundColor: '#f8f8f8',
-//   },
-//   totalText: {
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     color: "#000", // Changed to black
-//   },
-//   submitButton: {
-//     backgroundColor: 'green',
-//     borderRadius: 5,
-//     padding: 10,
-//     alignItems: 'center',
-//   },
-//   submitButtonText: {
-//     color: 'white',
-//     fontSize: 16,
-//   },
-// });
-
-// export default Jayantri;
-
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-// import { useRoute } from '@react-navigation/native';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// const Jayantri = () => {
-//   const [inputValues, setInputValues] = useState(
-//     Array(100)
-//       .fill(null)
-//       .map((_, index) => ({
-//         number: index === 99 ? '00' : String(index + 1).padStart(2, '0'), // Format numbers as 01, 02, ..., 99, 00
-//         value: '',
-//       }))
-//   );
-//   const [totalAmount, setTotalAmount] = useState(0);
-//   const [walletBalance, setWalletBalance] = useState(0);
-//   const [loading, setLoading] = useState(false);
-//   const route = useRoute();
-//   const { categoryId, subCategoryId } = route.params;
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const token = await AsyncStorage.getItem('userToken');
-//         const response = await fetch(
-//           `https://liveapi.sattalives.com/api/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`,
-//           {
-//             headers: {
-//               Authorization: `Bearer ${token}`,
-//             },
-//           }
-//         );
-//         const result = await response.json();
-//         if (result.status === 200) {
-//           const data = result.data;
-//           setWalletBalance(data.user_amount || 0);
-//           setInputValues(
-//             data.play_game.jodi_harup.map(item => ({
-//               number: item.number === 100 ? '00' : String(item.number).padStart(2, '0'),
-//               value: item.entered_amount || '',
-//             }))
-//           );
-//         }
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-//     };
-
-//     fetchData();
-//   }, [categoryId, subCategoryId]);
-
-//   const handleInputChange = (index, text) => {
-//     const newValues = [...inputValues];
-//     newValues[index] = { ...newValues[index], value: text };
-//     setInputValues(newValues);
-//     updateTotalAmount(newValues);
-//   };
-
-//   const updateTotalAmount = (values) => {
-//     const total = values.reduce((sum, item) => sum + (parseFloat(item.value) || 0), 0);
-//     setTotalAmount(total);
-//   };
-
-//   const handleSubmit = async () => {
-//     setLoading(true);
-//     try {
-//       const token = await AsyncStorage.getItem('userToken');
-
-//       const enteredData = inputValues
-//         .filter(item => parseFloat(item.value) > 0)
-//         .map(item => ({
-//           number: item.number === '00' ? 100 : parseInt(item.number, 10), // Convert back to number for API
-//           amount: parseFloat(item.value) || 0,
-//         }));
-//         console.log("gafd",enteredData)
-//       if (enteredData.length === 0) {
-//         Alert.alert('Validation Error', 'Please enter valid amounts before submitting.');
-//         return;
-//       }
-
-//       const payload = {
-//         category_id: categoryId,
-//         subcategory_id: subCategoryId,
-//         subcategory_name: "Jantri",
-//         entered_data: enteredData,
-//       };
-
-//       const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//         },
-//         body: JSON.stringify(payload),
-//       });
-
-//       const data = await response.json();
-
-//       if (response.ok) {
-//         Alert.alert('Success', 'Data submitted successfully!');
-//       } else {
-//         Alert.alert('Error', data.error || 'An error occurred');
-//       }
-//     } catch (error) {
-//       console.error('Error submitting data:', error);
-//       Alert.alert('Error', error.message || 'An error occurred');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const renderInputs = () => {
-//     const rows = [];
-//     for (let i = 0; i < 100; i += 5) {
-//       rows.push(
-//         <View key={i} style={styles.row}>
-//           {Array.from({ length: 5 }, (_, j) => (
-//             <View key={i + j} style={styles.inputContainer}>
-//               <Text style={styles.rowNumber}>{inputValues[i + j].number}</Text>
-//               <TextInput
-//                 style={styles.input}
-//                 keyboardType="numeric"
-//                 value={inputValues[i + j].value}
-//                 onChangeText={(text) => handleInputChange(i + j, text)}
-//               />
-//             </View>
-//           ))}
-//         </View>
-//       );
-//     }
-//     return rows;
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.card}>
-//         <Text style={styles.balanceText}>Available Wallet Balance: {walletBalance}</Text>
-//       </View>
-//       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-//         {renderInputs()}
-//       </ScrollView>
-//       <View style={styles.bottomContainer}>
-//         <Text style={styles.totalText}>Total Amount: {totalAmount.toFixed(2)}</Text>
-//         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-//           <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//   },
-//   card: {
-//     backgroundColor: '#28a745',
-//     padding: 16,
-//     borderRadius: 8,
-//     marginBottom: 16,
-//     marginTop: 16,
-//     marginHorizontal: 20,
-//   },
-//   balanceText: {
-//     color: '#fff',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     textAlign: 'center',
-//   },
-//   scrollViewContent: {
-//     flexGrow: 1,
-//     padding: 20,
-//   },
-//   row: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginBottom: 10,
-//   },
-//   inputContainer: {
-//     alignItems: 'center',
-//     width: '18%',
-//   },
-//   rowNumber: {
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     marginBottom: 5,
-//     color: '#000',
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 5,
-//     padding: 10,
-//     width: '100%',
-//     textAlign: 'center',
-//     color: '#000',
-//   },
-//   bottomContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     padding: 15,
-//     backgroundColor: '#f8f8f8',
-//   },
-//   totalText: {
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     color: '#000',
-//   },
-//   submitButton: {
-//     backgroundColor: 'green',
-//     borderRadius: 5,
-//     padding: 10,
-//     alignItems: 'center',
-//   },
-//   submitButtonText: {
-//     color: 'white',
-//     fontSize: 16,
-//   },
-// });
-
-// export default Jayantri;
-import React, { useState, useEffect,useCallback } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, FlatList } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
+import Colors from '../../Theme/Colors';
+import CustomAlert from '../../Components/CustomAlert';
 
 const Jayantri = () => {
-  const [inputValues, setInputValues] = useState(Array(100).fill(null).map((_, index) => {
-    const number = (index + 1).toString().padStart(2, '0'); // Format number as '01', '02', ..., '09', '10', ..., '99', '00'
-    return { number: number === '100' ? '00' : number, value: '' };
-  }));
-  const [totalAmount, setTotalAmount] = useState(0);
+  // Generate 100 default items (01...99, 00)
+  const defaultItems = useMemo(() => {
+    return Array(100).fill(null).map((_, index) => {
+      const number = (index + 1).toString().padStart(2, '0'); 
+      return { id: `item-${index}`, number: number === '100' ? '00' : number, value: '' };
+    });
+  }, []);
+
+  const [inputValues, setInputValues] = useState(defaultItems);
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(false);
+
   const route = useRoute();
   const { categoryId, subCategoryId } = route.params;
 
-  useFocusEffect(
-  useCallback(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`https://liveapi.sattalives.com/api/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const result = await response.json();
-        if (result.status === 200) {
-          const data = result.data;
-          setWalletBalance(data?.user_amount || 0); // Ensure walletBalance is set to a number
-          setInputValues((data?.play_game?.jodi_harup || []).map(item => {
-            const formattedNumber = item.number.toString().padStart(2, '0');
-            return { number: formattedNumber === '100' ? '00' : formattedNumber, value: item.entered_amount || '' };
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  // Custom Alert State
+  const [alertConfig, setAlertConfig] = useState({ 
+    visible: false, 
+    title: '', 
+    message: '', 
+    type: 'error' 
+  });
 
-    fetchData();
-  }, [categoryId, subCategoryId]));
-
-  const handleInputChange = (index, text) => {
-    const newValues = [...inputValues];
-    newValues[index] = { ...newValues[index], value: text }; // Ensure the specific index is updated
-    setInputValues(newValues);
-    updateTotalAmount(newValues);
+  const showAlert = (title, message, type = 'error') => {
+    setAlertConfig({ visible: true, title, message, type });
   };
 
-  const updateTotalAmount = (values) => {
-    const total = values.reduce((sum, item) => sum + (parseFloat(item.value) || 0), 0);
-    setTotalAmount(total);
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
+  const totalAmount = useMemo(() => {
+    return inputValues.reduce((sum, item) => sum + (parseInt(item.value) || 0), 0);
+  }, [inputValues]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const token = await AsyncStorage.getItem('userToken');
+          const response = await fetch(`https://liveapi.sattalives.com/api/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const result = await response.json();
+          if (result.status === 200) {
+            const data = result.data;
+            setWalletBalance(data?.user_amount || 0);
+
+            const fetchedJodi = data?.play_game?.jodi_harup || [];
+            
+            // Merge fetched data into the 100 default items to ensure grid never breaks
+            const merged = defaultItems.map(defaultItem => {
+              const found = fetchedJodi.find(apiItem => {
+                let apiNum = apiItem.number.toString().padStart(2, '0');
+                if (apiNum === '100') apiNum = '00';
+                return apiNum === defaultItem.number;
+              });
+              return {
+                ...defaultItem,
+                value: found && found.entered_amount ? found.entered_amount.toString() : ''
+              };
+            });
+            setInputValues(merged);
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
+    }, [categoryId, subCategoryId, defaultItems])
+  );
+
+  const handleInputChange = (id, text) => {
+    const cleanText = text.replace(/[^0-9]/g, ''); // Ensure only numbers
+    setInputValues(prev => prev.map(item => 
+      item.id === id ? { ...item, value: cleanText } : item
+    ));
   };
 
   const handleSubmit = async () => {
     setLoading(true);
+    Keyboard.dismiss();
     try {
       const token = await AsyncStorage.getItem('userToken');
 
-      // Create enteredData with valid numbers and serial numbers
+      // Filter and format for API
       const enteredData = inputValues
-        .filter(item => parseFloat(item.value) > 0) // Filter out items with non-positive values
+        .filter(item => parseInt(item.value) > 0)
         .map(item => ({
-          number: item.number,
-          amount: parseFloat(item.value) || 0,
+          number: item.number, // Server might expect string "01", "00" etc based on previous implementations
+          amount: parseInt(item.value) || 0,
         }));
 
-      // If no valid data, show an alert and exit
       if (enteredData.length === 0) {
-        Alert.alert('Validation Error', 'Please enter valid amounts before submitting.');
         setLoading(false);
+        showAlert('Warning', 'Please enter a valid amount in at least one field before submitting.', 'warning');
         return;
       }
 
-      // Create the payload
       const payload = {
         category_id: categoryId,
         subcategory_id: subCategoryId,
@@ -524,10 +117,6 @@ const Jayantri = () => {
         entered_data: enteredData,
       };
 
-      // Log the payload to the console
-      // console.log("Payload to be submitted:", JSON.stringify(payload, null, 2));
-
-      // Send the request
       const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
         method: 'POST',
         headers: {
@@ -537,146 +126,241 @@ const Jayantri = () => {
         body: JSON.stringify(payload),
       });
 
-      // Parse the response
       const data = await response.json();
+      setLoading(false);
 
       if (response.ok) {
-        Alert.alert('Success', 'Data submitted successfully!');
+        showAlert('Success', 'Jantri bets submitted successfully!', 'success');
+        // Clear all inputs on success
+        setInputValues(defaultItems);
       } else {
-        Alert.alert('Error', data.error || 'An error occurred');
+        showAlert('Error', data.error || 'Failed to submit data. Insufficient balance or invalid amounts.', 'error');
       }
     } catch (error) {
-      console.error('Error submitting data:', error);
-      Alert.alert('Error', error.message || 'An error occurred');
-    } finally {
       setLoading(false);
+      showAlert('Connection Error', 'An error occurred while communicating with the server.', 'error');
     }
   };
 
-  const renderInputs = () => {
-    const rows = [];
-    for (let i = 0; i < 100; i += 5) {
-      rows.push(
-        <View key={i} style={styles.row}>
-          {Array.from({ length: 5 }, (_, j) => (
-            <View key={i + j} style={styles.inputContainer}>
-              <Text style={styles.rowNumber}>{inputValues[i + j].number}</Text>
+  const renderHeader = () => (
+    <View style={styles.walletBanner}>
+      <View style={styles.walletIconContainer}>
+        <Icon name="pocket" size={20} color="#FFD700" />
+      </View>
+      <View>
+        <Text style={styles.walletLabel}>Available Wallet Balance</Text>
+        <Text style={styles.walletBalance}>₹ {walletBalance}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <FlatList
+        data={inputValues}
+        keyExtractor={item => item.id}
+        numColumns={3}
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={styles.flatListContent}
+        columnWrapperStyle={styles.columnWrapper}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={15}
+        removeClippedSubviews={true}
+        windowSize={5}
+        renderItem={({ item }) => (
+          <View style={styles.inputCard}>
+            <View style={styles.digitBadge}>
+              <Text style={styles.digitText}>{item.number}</Text>
+            </View>
+            <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.input}
                 keyboardType="numeric"
-                value={inputValues[i + j].value}
-                onChangeText={(text) => handleInputChange(i + j, text)}
+                placeholder="0"
+                placeholderTextColor={Colors.secondaryText}
+                value={item.value}
+                onChangeText={(text) => handleInputChange(item.id, text)}
+                maxLength={6}
               />
             </View>
-          ))}
-        </View>
-      );
-    }
-    return rows;
-  };
+          </View>
+        )}
+      />
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.balanceText}>Available Wallet Balance: {walletBalance}</Text>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {renderInputs()}
-      </ScrollView>
-      <View style={styles.bottomContainer}>
-        <Text style={styles.totalText}>Total Amount: {totalAmount.toFixed(2)}</Text>
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-          <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
+      {/* Sticky Footer */}
+      <View style={styles.footer}>
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total Amount</Text>
+          <Text style={styles.totalValue}>₹ {totalAmount}</Text>
+        </View>
+        <TouchableOpacity 
+          style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+          onPress={handleSubmit} 
+          disabled={loading}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>
+            {loading ? 'PROCESSING...' : 'SUBMIT ALL BETS'}
+          </Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+      {/* Custom Reusable Alert Modal */}
+      <CustomAlert 
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={hideAlert}
+        buttonText={alertConfig.type === 'error' ? 'TRY AGAIN' : 'OK'}
+      />
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.background,
   },
-  card: {
-    backgroundColor: '#1E1E2C',
+  flatListContent: {
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    marginTop: 16,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderColor: '#FFD700',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+    paddingBottom: 140, // Space for footer
   },
-  balanceText: {
-    color: '#FFD700',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  walletBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  walletIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  walletLabel: {
+    color: Colors.secondaryText,
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  walletBalance: {
+    color: '#FFD700',
+    fontSize: 22,
+    fontWeight: '900',
     letterSpacing: 1,
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  row: {
-    flexDirection: 'row',
+  columnWrapper: {
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  inputContainer: {
+  inputCard: {
+    width: '31%', // 3 columns
+    flexDirection: 'column',
+    backgroundColor: Colors.primarySurface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  digitBadge: {
+    backgroundColor: Colors.secondarySurface,
+    paddingVertical: 8,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '18%',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
   },
-  rowNumber: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: "#A0A0A0",
+  digitText: {
+    color: '#FFD700',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    backgroundColor: Colors.background,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#333344',
-    backgroundColor: '#1E1E2C',
-    borderRadius: 8,
-    padding: 10,
-    width: '100%',
+    flex: 1,
+    color: Colors.primaryText,
+    fontSize: 15,
+    fontWeight: '700',
+    height: 40,
     textAlign: 'center',
-    color: '#fff',
+    paddingVertical: 0,
   },
-  bottomContainer: {
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.primarySurface,
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#1E1E2C',
-    borderTopWidth: 1,
-    borderTopColor: '#333344',
+    marginBottom: 16,
   },
-  totalText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: "#FFD700",
+  totalLabel: {
+    color: Colors.secondaryText,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  totalValue: {
+    color: '#FFD700',
+    fontSize: 24,
+    fontWeight: '900',
   },
   submitButton: {
     backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
   },
   submitButtonText: {
     color: '#121212',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
+    letterSpacing: 1,
   },
 });
 
 export default Jayantri;
-

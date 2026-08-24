@@ -22,7 +22,7 @@
 
 // const DrawerNavigator = () => {
 //   const [balance, setBalance] = useState(null);
-  
+
 //   useFocusEffect(
 //     useCallback(() => {
 //     const fetchBalance = async () => {
@@ -107,7 +107,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LoginUser } from '../Redux/Reducers/AuthSlice';
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import ProfileScreen from '../Screens/ProfileScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -128,7 +129,7 @@ const DrawerNavigator = () => {
 
   const dispatch = useDispatch();
 
-  const {result: resultLoginUser } = useSelector((state) => state.login.LoginUser);  // const fetchBalance = useCallback(async () => {
+  const { result: resultLoginUser } = useSelector((state) => state.login.LoginUser);  // const fetchBalance = useCallback(async () => {
   //   try {
   //     const token = await AsyncStorage.getItem('userToken'); // Assuming you store the token under 'userToken'
   //     if (token) {
@@ -155,7 +156,7 @@ const DrawerNavigator = () => {
   //   }
   // }, []);
 
-  console.log("valance22222 " , resultLoginUser?.data?.balance);
+  console.log("valance22222 ", resultLoginUser?.data?.balance);
 
   useFocusEffect(
     useCallback(() => {
@@ -168,21 +169,39 @@ const DrawerNavigator = () => {
     <Drawer.Navigator drawerContent={(props) => <CustomDrawer {...props} />}>
       <Drawer.Screen
         name="Satta Live"
-        component={RootStackScreen } 
+        component={RootStackScreen}
         options={{
           headerTitle: () => <HeaderTitle />,
           headerRight: () => (
             resultLoginUser?.data?.balance !== null ? <HeaderRight balance={resultLoginUser?.data?.balance} /> : null
           ),
           headerStyle: {
-            backgroundColor: '#121212', 
+            backgroundColor: '#121212',
             elevation: 0,
             shadowOpacity: 0,
           },
-          headerTintColor: '#FFD700', 
+          headerTintColor: '#FFD700',
           headerTitleAlign: 'center',
         }}
-        
+
+      />
+      <Drawer.Screen 
+        name="ProfileScreen" 
+        component={ProfileScreen}
+        options={{
+          headerTitle: () => (
+            <View style={styles.headerTitleContainer}>
+              <Text style={styles.headerTitleText}>My Profile</Text>
+            </View>
+          ),
+          headerStyle: {
+            backgroundColor: '#121212',
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          headerTintColor: '#FFD700',
+          headerTitleAlign: 'center',
+        }}
       />
       {/* Add other drawer screens here if needed */}
     </Drawer.Navigator>

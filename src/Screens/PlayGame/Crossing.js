@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView } from 'react-native';
-import CheckBox from '@react-native-community/checkbox'; // Updated import
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icon library
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
+import Icon from 'react-native-vector-icons/Feather';
 import { useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../../Theme/Colors';
+import CustomAlert from '../../Components/CustomAlert';
 
 const Crossing = () => {
   const [checked, setChecked] = useState(false);
@@ -11,13 +13,31 @@ const Crossing = () => {
   const [number2, setNumber2] = useState('');
   const [amount, setAmount] = useState('');
   const [pairs, setPairs] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
   const prevCheckedRef = useRef(checked);
   const [loading, setLoading] = useState(false);
 
   const route = useRoute();
-  const { categoryId, subCategoryId } = route.params; // Access the parameters
+  const { categoryId, subCategoryId } = route.params;
 
+  // Custom Alert State
+  const [alertConfig, setAlertConfig] = useState({ 
+    visible: false, 
+    title: '', 
+    message: '', 
+    type: 'error' 
+  });
+
+  const showAlert = (title, message, type = 'error') => {
+    setAlertConfig({ visible: true, title, message, type });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
+  const totalAmount = useMemo(() => {
+    return pairs.reduce((sum, item) => sum + (parseInt(item.amount) || 0), 0);
+  }, [pairs]);
 
   const calculatePairs = (num1, num2, amt) => {
     const crossingNumbers = [];
@@ -25,25 +45,54 @@ const Crossing = () => {
       const digit1 = num1[i];
       for (let j = 0; j < num2.length; j++) {
         const digit2 = num2[j];
-        crossingNumbers.push({ pair: digit1 + digit2, amount: amt });
+        crossingNumbers.push({ 
+          id: Math.random().toString(36).substr(2, 9), 
+          pair: digit1 + digit2, 
+          amount: amt 
+        });
       }
     }
-    const totalAmount = crossingNumbers.length * amt;
-    return { crossingNumbers, totalAmount };
+    return crossingNumbers;
+  };
+
+  const handleAmountChange = (text) => {
+    // Only allow digits to prevent 'parseInt' from breaking on spaces/commas
+    const cleanText = text.replace(/[^0-9]/g, '');
+    setAmount(cleanText);
+  };
+
+  const handleNumber1Change = (text) => {
+    const cleanText = text.replace(/[^0-9]/g, '');
+    setNumber1(cleanText);
+  };
+
+  const handleNumber2Change = (text) => {
+    const cleanText = text.replace(/[^0-9]/g, '');
+    setNumber2(cleanText);
   };
 
   const handleAdd = () => {
-    if (number1 && number2 && amount) {
-      const amountNumber = parseInt(amount);
-      const { crossingNumbers, totalAmount } = calculatePairs(number1, number2, amountNumber);
-      setPairs(crossingNumbers);
-      setTotalAmount(totalAmount);
-      setNumber1('');
-      setNumber2('');
-      setAmount('');
-    } else {
-      Alert.alert('Alert', 'Please fill in all fields before adding an item.');
+    if (!number1 || !number2) {
+      showAlert('Missing Info', 'Please enter both numbers for crossing.', 'warning');
+      setChecked(false);
+      return;
     }
+    if (!amount || parseInt(amount) <= 0) {
+      showAlert('Missing Info', 'Please enter a valid amount.', 'warning');
+      setChecked(false);
+      return;
+    }
+    
+    const amountNumber = parseInt(amount);
+    const crossingNumbers = calculatePairs(number1, number2, amountNumber);
+    
+    // Add new pairs to existing ones
+    setPairs(prev => [...crossingNumbers, ...prev]);
+    setNumber1('');
+    setNumber2('');
+    setAmount('');
+    setChecked(false);
+    Keyboard.dismiss();
   };
 
   useEffect(() => {
@@ -53,23 +102,20 @@ const Crossing = () => {
     prevCheckedRef.current = checked;
   }, [checked]);
 
-  const handleRemove = (index) => {
-    const amountToRemove = pairs[index].amount;
-    const newPairs = pairs.filter((_, i) => i !== index);
-    setPairs(newPairs);
-    setTotalAmount(totalAmount - amountToRemove);
+  const handleRemove = (id) => {
+    setPairs(prev => prev.filter(item => item.id !== id));
   };
 
   const handleSubmit = async () => {
     setLoading(true);
+    Keyboard.dismiss();
     try {
-      const token = await AsyncStorage.getItem('userToken'); // Retrieve the token from AsyncStorage
-      const enteredData = pairs?.map(item => ({
+      const token = await AsyncStorage.getItem('userToken');
+      const enteredData = pairs.map(item => ({
         number: item.pair,
         amount: item.amount
       }));
-      console.log("pairs" , pairs)
-      console.log("pairs" , enteredData)
+      
       const payload = {
         category_id: categoryId,
         subcategory_id: subCategoryId,
@@ -87,104 +133,172 @@ const Crossing = () => {
       });
 
       const data = await response.json();
-
-      console.log("34567" , data)
       setLoading(false);
 
       if (response.ok) {
-        Alert.alert('Success', 'Data submitted successfully!');
-        // setItems([]);
+        showAlert('Success', 'Crossing bets placed successfully!', 'success');
+        setPairs([]);
       } else {
-        Alert.alert('Error', data.error || 'An error occurred');
+        showAlert('Error', data.error || 'Insufficient balance or invalid request.', 'error');
       }
     } catch (error) {
       setLoading(false);
-      Alert.alert('Error', error.message || 'An error occurred');
+      showAlert('Connection Error', 'An error occurred while communicating with the server.', 'error');
     }
   };
 
-  const renderTableHeader = () => (
-    <View style={styles.tableHeader}>
-      <Text style={styles.headerText}>Number Type</Text>
-      <Text style={styles.headerText}>Number</Text>
-      <Text style={styles.headerText}>Amount</Text>
+  const renderHeader = () => (
+    <View>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.headerTitle}>CROSSING BETS</Text>
+        <Text style={styles.headerSubtitle}>Generate pairs automatically</Text>
+      </View>
+
+      <View style={styles.inputCard}>
+        <View style={styles.inputRow}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Number 1</Text>
+            <View style={styles.inputWrapper}>
+              <Icon name="hash" size={16} color={Colors.secondaryText} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Ex: 12"
+                placeholderTextColor={Colors.secondaryText}
+                value={number1}
+                onChangeText={handleNumber1Change}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Number 2</Text>
+            <View style={styles.inputWrapper}>
+              <Icon name="hash" size={16} color={Colors.secondaryText} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                keyboardType="numeric"
+                placeholder="Ex: 34"
+                placeholderTextColor={Colors.secondaryText}
+                value={number2}
+                onChangeText={handleNumber2Change}
+              />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Amount Per Pair (₹)</Text>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.rupeeIcon}>₹</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="0"
+              placeholderTextColor={Colors.secondaryText}
+              value={amount}
+              onChangeText={handleAmountChange}
+            />
+          </View>
+        </View>
+
+        <View style={styles.checkboxRow}>
+          <CheckBox
+            value={checked}
+            onValueChange={setChecked}
+            tintColors={{ true: Colors.primary, false: Colors.secondaryText }}
+            boxType="square"
+            onTintColor={Colors.primary}
+            onCheckColor={Colors.background}
+            onFillColor={Colors.primary}
+          />
+          <Text style={styles.checkboxLabel}>Auto-Generate & Add Crossing Pairs</Text>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.addButton, (!number1 || !number2 || !amount) && styles.addButtonDisabled]} 
+          onPress={handleAdd}
+          disabled={!number1 || !number2 || !amount}
+        >
+          <Icon name="layers" size={20} color="#121212" style={{ marginRight: 8 }} />
+          <Text style={styles.addButtonText}>GENERATE PAIRS</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.listHeader}>
+        <Text style={styles.listTitle}>Crossing Slip</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{pairs.length} Pairs</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyState}>
+      <Icon name="grid" size={48} color={Colors.divider} />
+      <Text style={styles.emptyText}>No crossing pairs generated</Text>
     </View>
   );
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.header}>
-          <CheckBox
-            value={checked}
-            onValueChange={setChecked}
-            style={styles.checkbox} // Optional styling
-            tintColors={{ true: 'black', false: 'black' }}
-          />
-          <Text style={styles.heading}>Crossing</Text>
-        </View>
-        <View style={styles.inputsContainer}>
-          <TextInput
-            style={[styles.input, styles.numberInput]} // Apply numberInput style
-            keyboardType="numeric"
-            placeholder="Number 1"
-            value={number1}
-            onChangeText={setNumber1}
-            placeholderTextColor="gray" // Set placeholder color to black
-          />
-          <TextInput
-            style={[styles.input, styles.numberInput]} // Apply numberInput style
-            keyboardType="numeric"
-            placeholder="Number 2"
-            value={number2}
-            onChangeText={setNumber2}
-            placeholderTextColor="gray" // Set placeholder color to black
-          />
-        </View>
-        <View style={styles.amountContainer}>
-          <TextInput
-            style={[styles.input, styles.amountInput]} // Apply amountInput style
-            keyboardType="numeric"
-            placeholder="Amount"
-            value={amount}
-            onChangeText={setAmount}
-            placeholderTextColor="gray" // Set placeholder color to black
-          />
-        </View>
-        <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-          <Text style={styles.addButtonText}>+ Add</Text>
-        </TouchableOpacity>
-        <FlatList
-          ListHeaderComponent={renderTableHeader}
-          data={pairs}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.item}>
-              <Text style={styles.itemText}>Jodi</Text>
-              <Text style={styles.itemText}>{item.pair}</Text>
-              <Text style={styles.itemText}>{item.amount}</Text>
-              <TouchableOpacity onPress={() => handleRemove(index)} style={styles.removeButton}>
-                <Icon name="close" size={20} color="white" />
-              </TouchableOpacity>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <FlatList
+        contentContainerStyle={styles.flatListContent}
+        data={pairs}
+        keyExtractor={item => item.id}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={renderEmptyComponent}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <View style={styles.betCard}>
+            <View style={styles.betInfo}>
+              <View style={styles.betNumberBox}>
+                <Text style={styles.betNumber}>{item.pair}</Text>
+              </View>
+              <View>
+                <Text style={styles.betTypeLabel}>Type: JODI</Text>
+                <Text style={styles.betAmount}>₹ {item.amount}</Text>
+              </View>
             </View>
-          )}
-        />
-        {pairs.length > 0 && (
-          <View style={styles.totalAmountContainer}>
-            <Text style={styles.totalAmountText}>Total Amount: {totalAmount}</Text>
+            <TouchableOpacity style={styles.removeButton} onPress={() => handleRemove(item.id)}>
+              <Icon name="trash-2" size={20} color={Colors.error} />
+            </TouchableOpacity>
           </View>
         )}
-      </ScrollView>
+      />
+
+      {/* Sticky Footer */}
       {pairs.length > 0 && (
-        <View style={styles.submitButtonContainer}>
-          {/* <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Click here to Submit</Text>
-          </TouchableOpacity> */}
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-          <Text style={styles.submitButtonText}>{loading ? 'Saving...' : 'Click here to Submit'}</Text>
-        </TouchableOpacity>
+        <View style={styles.footer}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalValue}>₹ {totalAmount}</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+            onPress={handleSubmit} 
+            disabled={loading}
+          >
+            <Text style={styles.submitButtonText}>
+              {loading ? 'PROCESSING...' : 'SUBMIT ALL PAIRS'}
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
+
+      {/* Custom Reusable Alert Modal */}
+      <CustomAlert 
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={hideAlert}
+        buttonText={alertConfig.type === 'error' ? 'TRY AGAIN' : 'OK'}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -192,129 +306,250 @@ const Crossing = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.background,
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 80, // Make space for the Submit button
+  flatListContent: {
+    padding: 16,
+    paddingBottom: 140, // Space for footer
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+  headerTitleContainer: {
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
-  heading: {
+  headerTitle: {
+    color: '#FFD700',
     fontSize: 20,
-    marginLeft: 10,
-    color: "#fff",
-    fontWeight: 'bold',
+    fontWeight: '900',
+    letterSpacing: 1,
   },
-  inputsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+  headerSubtitle: {
+    color: Colors.secondaryText,
+    fontSize: 14,
+    marginTop: 4,
   },
-  input: {
+  inputCard: {
+    backgroundColor: Colors.primarySurface,
+    padding: 16,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#333344',
-    backgroundColor: '#1E1E2C',
-    borderRadius: 8,
-    padding: 10,
-    flex: 1,
-    margin: 5,
-    color:"#fff"
+    borderColor: Colors.divider,
+    marginBottom: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
-  numberInput: {
-    height: 40, // Height for number inputs
-  },
-  amountContainer: {
-    height: 50, // Container height for amount input
-    marginBottom: 20,
-  },
-  amountInput: {
-    height: '100%', // Ensure the input takes up the full height of the container
-  },
-  tableHeader: {
+  inputRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#1E1E2C',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333344',
-    borderRadius: 8,
+    marginBottom: 16,
+  },
+  inputGroup: {
+    flex: 1,
+    marginHorizontal: 4,
+    marginBottom: 16,
+  },
+  inputLabel: {
+    color: Colors.primaryText,
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: 8,
   },
-  headerText: {
-    fontWeight: 'bold',
-    flex: 1,
-    color:"#FFD700",
-    textAlign: 'center',
-  },
-  item: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#333344',
-    paddingVertical: 12,
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    backgroundColor: '#070A12',
+    borderWidth: 1,
+    borderColor: '#333344',
+    borderRadius: 12,
+    height: 50,
   },
-  itemText: {
-    flex: 1,
-    color:"#A0A0A0",
-    textAlign: 'center',
+  inputIcon: {
+    paddingLeft: 12,
+  },
+  rupeeIcon: {
+    color: Colors.secondaryText,
     fontSize: 16,
+    paddingLeft: 12,
+    fontWeight: 'bold',
   },
-  removeButton: {
-    backgroundColor: '#FF4C4C',
-    borderRadius: 50,
-    padding: 4,
+  input: {
+    flex: 1,
+    color: Colors.primaryText,
+    fontSize: 16,
+    fontWeight: 'bold',
+    paddingHorizontal: 12,
+    height: '100%',
   },
-  checkbox: {
-    margin: 10, // Optional styling
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+    backgroundColor: 'rgba(91, 92, 255, 0.1)',
+    borderRadius: 8,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(91, 92, 255, 0.3)',
+  },
+  checkboxLabel: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   addButton: {
+    flexDirection: 'row',
     backgroundColor: '#FFD700',
-    borderRadius: 8,
-    padding: 12,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+  },
+  addButtonDisabled: {
+    backgroundColor: '#555544',
+    opacity: 0.5,
   },
   addButtonText: {
     color: '#121212',
+    fontWeight: '900',
+    fontSize: 15,
+    letterSpacing: 1,
+  },
+  listHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  listTitle: {
+    color: Colors.primaryText,
     fontSize: 16,
+    fontWeight: '700',
+    marginRight: 8,
+  },
+  badge: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  badgeText: {
+    color: Colors.primaryText,
+    fontSize: 12,
     fontWeight: 'bold',
   },
-  totalAmountContainer: {
-    marginVertical: 10,
+  emptyState: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.5,
+    marginTop: 40,
   },
-  totalAmountText: {
+  emptyText: {
+    color: Colors.secondaryText,
+    fontSize: 16,
+    marginTop: 12,
+  },
+  betCard: {
+    flexDirection: 'row',
+    backgroundColor: Colors.primarySurface,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  betInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  betNumberBox: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'rgba(91, 92, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(91, 92, 255, 0.3)',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  betNumber: {
+    color: Colors.primary,
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  betTypeLabel: {
+    color: Colors.secondaryText,
+    fontSize: 12,
+    marginBottom: 2,
+    fontWeight: '600',
+  },
+  betAmount: {
+    color: '#20D98A',
     fontSize: 18,
     fontWeight: 'bold',
-    color:"#FFD700"
   },
-  submitButtonContainer: {
-    padding: 16,
-    backgroundColor: '#121212',
+  removeButton: {
+    padding: 8,
+    backgroundColor: 'rgba(255, 92, 108, 0.1)',
+    borderRadius: 8,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.primarySurface,
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  totalLabel: {
+    color: Colors.secondaryText,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  totalValue: {
+    color: '#FFD700',
+    fontSize: 24,
+    fontWeight: '900',
   },
   submitButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: Colors.primary,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
-    elevation: 3,
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: 8,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
   },
   submitButtonText: {
-    color: '#121212',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: Colors.primaryText,
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
 });
 

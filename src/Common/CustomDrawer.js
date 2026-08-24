@@ -1,130 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Button, Share, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share, Linking, ScrollView, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Colors from '../Theme/Colors';
 
 const CustomDrawer = () => {
   const navigation = useNavigation();
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [oldPasswordVisible, setOldPasswordVisible] = useState(false);
-  const [newPasswordVisible, setNewPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [error, setError] = useState("");
-
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
 
   useEffect(() => {
-    const fetchToken = async () => {
+    const fetchUserData = async () => {
       try {
         const userName = await AsyncStorage.getItem('name');
         const userMobile = await AsyncStorage.getItem('mobile');
-
         setName(userName);
         setMobile(userMobile);
       } catch (error) {
-        console.setMobileerror('Failed to fetch token:', error);
+        console.error('Failed to fetch user data:', error);
       }
     };
-
-    fetchToken();
+    fetchUserData();
   }, []);
 
   const navigateToGamingScreen = (tabName, initialTab) => {
     navigation.navigate('Gaming', {
-      screen: 'Gaming',
+      screen: 'GamingScreen',
       params: { tabName, initialTab },
     });
   };
 
   const handleShare = async () => {
     try {
-      const referralCode = await AsyncStorage.getItem('referral_code'); // Replace with your key for referral code
-      const appLink = 'https://download.sattalives.com/SattaLive.apk'; // Replace with your app's actual link
+      const referralCode = await AsyncStorage.getItem('referral_code');
+      const appLink = 'https://download.sattalives.com/SattaLive.apk';
       const message = `Check out this awesome app! Use my REFERRAL CODE: **${referralCode}** to sign up and get 5% rewards! You can download the app by clicking on the link: ${appLink}`;
   
-      await Share.share({
-        message,
-      });
+      await Share.share({ message });
     } catch (error) {
       console.error('Failed to share the app link:', error.message);
     }
   };
 
   const handleHelp = () => {
-    const phoneNumber = '9643859339'; // Replace with the desired phone number
+    const phoneNumber = '9643859339';
     const message = 'Help needed';
-  
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  
     Linking.openURL(url).catch(err => console.error('An error occurred', err));
-  };
-  
-  const handleChangePassword = () => {
-    setModalVisible(true);
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      if (!oldPassword || !newPassword || !confirmPassword) {
-        Alert.alert('Error', 'All fields are required.');
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        setError("Password did not match")
-        Alert.alert('Error', 'New password and confirm password do not match.');
-        return;
-      }
-
-      const payload = {
-        current_password: oldPassword,
-        new_password: newPassword,
-        new_password_confirmation: confirmPassword,
-      };
-
-      const response = await fetch('https://liveapi.sattalives.com/api/user/change-password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        console.log("dfghjkgfhj" , errorData)
-        setError(errorData.message)
-      Alert.alert('Error', errorData.message);
-        throw new Error(errorData.message || 'Password change failed');
-      }
-
-      Alert.alert('Success', 'Password changed successfully');
-      setOldPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setModalVisible(false);
-    } catch (error) {
-      Alert.alert('Error', `Failed to change password. ${error.message}`);
-      console.error('Password change error:', error);
-    }
   };
 
   const handleLogout = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
       const response = await fetch('https://liveapi.sattalives.com/api/user/user-logout', {
-        method: 'POST', // Or 'GET' depending on the API requirement
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add any required headers here
           Authorization: `Bearer ${token}`
         },
       });
@@ -133,156 +65,52 @@ const CustomDrawer = () => {
         throw new Error('Logout failed');
       }
 
-      // Clear any user data from AsyncStorage
       await AsyncStorage.clear();
-
-      // Navigate to login screen
-      navigation.navigate('Login'); // Ensure 'Login' is the correct route name
-
+      navigation.navigate('Login');
     } catch (error) {
       Alert.alert('Error', 'Failed to logout. Please try again.');
       console.error('Logout error:', error);
     }
   };
 
+  const DrawerItem = ({ icon, label, onPress }) => (
+    <TouchableOpacity onPress={onPress} style={styles.drawerItem}>
+      <View style={styles.drawerItemLeft}>
+        <View style={styles.iconContainer}>
+          <Ionicons name={icon} size={22} color={Colors.gold} />
+        </View>
+        <Text style={styles.drawerItemText}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={Colors.secondaryText} />
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="person-circle" size={60} color="#FFD700" style={styles.userIcon} />
+        <View style={styles.avatarContainer}>
+          <Ionicons name="person" size={40} color={Colors.background} />
+        </View>
         <Text style={styles.userName}>{name || 'Satta User'}</Text>
         <Text style={styles.userMobile}>{mobile || '+91 0000000000'}</Text>
       </View>
-      <View style={styles.drawerContent}>
-        <TouchableOpacity onPress={() => navigation.navigate('HomeNew')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="home" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Home</Text>
-          </View>
+      
+      <ScrollView contentContainerStyle={styles.drawerContent} showsVerticalScrollIndicator={false}>
+        <DrawerItem icon="home" label="Home" onPress={() => navigation.navigate('HomeNew')} />
+        <DrawerItem icon="person-circle" label="My Profile" onPress={() => navigation.navigate('ProfileScreen')} />
+        <DrawerItem icon="game-controller" label="My Play History" onPress={() => navigateToGamingScreen('Two', 'Two')} />
+        <DrawerItem icon="wallet" label="My Winnings" onPress={() => navigateToGamingScreen('Five', 'Five')} />
+        <DrawerItem icon="cash" label="Add Money List" onPress={() => navigateToGamingScreen('Three', 'Three')} />
+        <DrawerItem icon="card" label="Withdraw Money List" onPress={() => navigateToGamingScreen('Four', 'Four')} />
+        <DrawerItem icon="share-social" label="Share & Earn" onPress={handleShare} />
+        <DrawerItem icon="help-circle" label="Help" onPress={handleHelp} />
+        <DrawerItem icon="lock-closed" label="Terms & Conditions" onPress={() => navigation.navigate('TermAndConditions')} />
+        
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out" size={22} color={Colors.error} />
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={() => navigateToGamingScreen('Two', 'Two')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="game-controller" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>My Play History</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={() => navigateToGamingScreen('Five', 'Five')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="wallet" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>My Winnings</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={() => navigateToGamingScreen('Three', 'Three')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="cash" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Add Money List</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={() => navigateToGamingScreen('Four', 'Four')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="card" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Withdraw Money List</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={handleChangePassword}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="key" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Change Password</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={handleShare}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="share-social" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Share & Earn</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={handleHelp}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="help-circle" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Help</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={() => navigation.navigate('TermAndConditions')}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="lock-closed" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Terms & Conditions</Text>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.separator} />
-        <TouchableOpacity onPress={handleLogout}>
-          <View style={styles.drawerItem}>
-            <Ionicons name="log-out" size={24} color="#FFD700" />
-            <Text style={styles.drawerItemText}>Logout</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-    
-      {/* Change Password Modal */}
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Change Password</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Old Password"
-                placeholderTextColor="gray"
-                value={oldPassword}
-                onChangeText={setOldPassword}
-                secureTextEntry={!oldPasswordVisible}
-              />
-              <TouchableOpacity onPress={() => setOldPasswordVisible(!oldPasswordVisible)}>
-                <Ionicons name={oldPasswordVisible ? 'eye' : 'eye-off'} size={24} color="gray" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="New Password"
-                placeholderTextColor="gray"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry={!newPasswordVisible}
-              />
-              <TouchableOpacity onPress={() => setNewPasswordVisible(!newPasswordVisible)}>
-                <Ionicons name={newPasswordVisible ? 'eye' : 'eye-off'} size={24} color="gray" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Confirm New Password"
-                placeholderTextColor="gray"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!confirmPasswordVisible}
-              />
-              <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
-                <Ionicons name={confirmPasswordVisible ? 'eye' : 'eye-off'} size={24} color="gray" />
-              </TouchableOpacity>
-            </View>
-            <Text style={{color:"red"}}>{error}</Text>
-            <View style={styles.modalButtons}>
-              <Button title="Submit" onPress={handleSubmit} />
-              <Button title="Close" onPress={() => setModalVisible(false)} color="red" />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      </ScrollView>
     </View>
   );
 };
@@ -290,89 +118,94 @@ const CustomDrawer = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#1E1E2C',
+    backgroundColor: Colors.primarySurface,
     alignItems: 'center',
-    paddingVertical: 30,
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: Colors.gold,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    marginBottom: 20,
   },
-  userIcon: {
-    marginBottom: 10,
+  avatarContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: Colors.gold,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: Colors.background,
   },
   userName: {
-    color: '#FFD700',
+    color: Colors.primaryText,
     fontSize: 22,
     fontWeight: 'bold',
   },
   userMobile: {
-    color: '#A0A0A0',
-    fontSize: 16,
-    marginTop: 5,
+    color: Colors.secondaryText,
+    fontSize: 14,
+    marginTop: 4,
+    fontWeight: '600',
   },
   drawerContent: {
-    marginTop: 5,
+    paddingHorizontal: 16,
+    paddingBottom: 40,
   },
   drawerItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: '#333344',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: Colors.primarySurface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+  },
+  drawerItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   drawerItemText: {
     fontSize: 16,
-    marginLeft: 15,
-    color: "#FFFFFF",
-    fontWeight: '500',
+    color: Colors.primaryText,
+    fontWeight: '600',
   },
-  separator: {
-    height: 0,
-  },
-  modalContainer: {
-    flex: 1,
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  modalContent: {
-    width: '85%',
-    backgroundColor: '#1E1E2C',
-    padding: 25,
+    paddingVertical: 16,
+    marginTop: 20,
+    backgroundColor: 'rgba(255, 59, 48, 0.1)',
     borderRadius: 12,
-    elevation: 5,
     borderWidth: 1,
-    borderColor: '#333344',
+    borderColor: 'rgba(255, 59, 48, 0.3)',
   },
-  modalTitle: {
-    fontSize: 20,
-    marginBottom: 20,
+  logoutText: {
+    fontSize: 16,
+    color: Colors.error,
     fontWeight: 'bold',
-    color: "#FFD700",
-    textAlign: 'center',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    backgroundColor: '#121212',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#333344',
-  },
-  input: {
-    flex: 1,
-    height: 45,
-    paddingHorizontal: 15,
-    color: "#fff",
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    marginLeft: 8,
   },
 });
 

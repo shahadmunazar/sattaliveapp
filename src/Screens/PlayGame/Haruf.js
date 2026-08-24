@@ -1,15 +1,35 @@
-
-import React, { useState, useEffect,useCallback } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
+import Colors from '../../Theme/Colors';
+import CustomAlert from '../../Components/CustomAlert';
 
 const Haruf = () => {
   const [andarHarafInputs, setAndarHarafInputs] = useState([]);
   const [baharHarafInputs, setBaharHarafInputs] = useState([]);
   const [total, setTotal] = useState(0);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Custom Alert State
+  const [alertConfig, setAlertConfig] = useState({ 
+    visible: false, 
+    title: '', 
+    message: '', 
+    type: 'error' 
+  });
+
+  const showAlert = (title, message, type = 'error') => {
+    setAlertConfig({ visible: true, title, message, type });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const route = useRoute();
   const { categoryId, subCategoryId } = route.params;
 
@@ -24,11 +44,9 @@ const Haruf = () => {
           }
         });
         const result = await response.json();
-        console.log("345tghj", result)
+        
         if (result.status == 200) {
-          console.log("%%%%%%%%", result)
           const data = result.data;
-          console.log("wertyui", data.user_amount)
           setWalletBalance(data?.user_amount || 0);
           setAndarHarafInputs((data?.play_game?.ander_harup || []).map(item => ({ number: item.number, value: item.entered_amount || '' })));
           setBaharHarafInputs((data?.play_game?.bahar_harup || []).map(item => ({ number: item.number, value: item.entered_amount || '' })));
@@ -59,17 +77,18 @@ const Haruf = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
+    Keyboard.dismiss();
     try {
-      // Filter out empty or zero values from the input arrays
       const filteredAndarHarafInputs = andarHarafInputs.filter(input => parseInt(input.value, 10) > 0);
       const filteredBaharHarafInputs = baharHarafInputs.filter(input => parseInt(input.value, 10) > 0);
   
       if (filteredAndarHarafInputs.length === 0 && filteredBaharHarafInputs.length === 0) {
-        Alert.alert('Warning', 'Please enter valid amounts to submit.');
+        setLoading(false);
+        showAlert('Warning', 'Please enter a valid amount in at least one field to submit bets.', 'warning');
         return;
       }
   
-      // Create the payload
       const payload = {
         entered_data: {
           ander_harup: filteredAndarHarafInputs.map(input => ({
@@ -86,10 +105,6 @@ const Haruf = () => {
         subcategory_name: "Harup",
       };
   
-      // Log the payload to the console
-      console.log("Payload to be submitted:", JSON.stringify(payload, null, 2));
-  
-      // Send the request
       const token = await AsyncStorage.getItem('userToken');
       const response = await fetch('https://liveapi.sattalives.com/api/user/submit-harup-game', {
         method: 'POST',
@@ -101,166 +116,286 @@ const Haruf = () => {
       });
   
       const result = await response.json();
-      console.log("Response:", result);
+      setLoading(false);
   
       if (result.status === 200) {
-        Alert.alert('Success', 'Data submitted successfully!');
+        showAlert('Success', 'Your bets have been submitted successfully!', 'success');
+        // Reset inputs on success
+        setAndarHarafInputs(andarHarafInputs.map(input => ({ ...input, value: '' })));
+        setBaharHarafInputs(baharHarafInputs.map(input => ({ ...input, value: '' })));
+        setTotal(0);
       } else {
-        Alert.alert('Error', result.error || 'Failed to submit data.');
+        showAlert('Error', result.error || 'Failed to submit data. Insufficient balance or invalid amounts.', 'error');
       }
     } catch (error) {
-      console.error('Error submitting data:', error);
-      Alert.alert('Error', 'An error occurred while submitting data.');
+      setLoading(false);
+      showAlert('Connection Error', 'An error occurred while communicating with the server. Please check your internet connection.', 'error');
     }
   };
 
   const renderInputs = (inputs, category) => (
-    <View style={styles.inputsContainer}>
+    <View style={styles.inputsGrid}>
       {inputs.map((input, index) => (
-        <View key={index} style={styles.inputWrapper}>
-          <Text style={styles.serialNumber}>{input.number}</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={input.value.toString()}
-            onChangeText={(text) => handleInputChange(text, index, category)}
-          />
+        <View key={index} style={styles.inputCard}>
+          <View style={styles.digitBadge}>
+            <Text style={styles.digitText}>{input.number}</Text>
+          </View>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.rupeeIcon}>₹</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="0"
+              placeholderTextColor={Colors.secondaryText}
+              value={input.value ? input.value.toString() : ''}
+              onChangeText={(text) => handleInputChange(text, index, category)}
+              maxLength={6}
+            />
+          </View>
         </View>
       ))}
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.balanceText}>Available Wallet Balance : {walletBalance}</Text>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.categoryContainer}>
-          <View style={styles.categoryColumn}>
-            <Text style={styles.categoryHeading}>Andar Haraf</Text>
-            {renderInputs(andarHarafInputs, 'andar')}
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        
+        {/* Wallet Balance Banner */}
+        <View style={styles.walletBanner}>
+          <View style={styles.walletIconContainer}>
+            <Icon name="pocket" size={20} color="#FFD700" />
           </View>
-
-          <View style={styles.categoryColumn}>
-            <Text style={styles.categoryHeading}>Bahar Haraf</Text>
-            {renderInputs(baharHarafInputs, 'bahar')}
+          <View>
+            <Text style={styles.walletLabel}>Available Wallet Balance</Text>
+            <Text style={styles.walletBalance}>₹ {walletBalance}</Text>
           </View>
         </View>
+
+        {/* Andar Haraf Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Icon name="arrow-down-left" size={20} color={Colors.primary} />
+            <Text style={styles.sectionTitle}>Andar Haraf</Text>
+          </View>
+          {renderInputs(andarHarafInputs, 'andar')}
+        </View>
+
+        {/* Bahar Haraf Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Icon name="arrow-up-right" size={20} color={Colors.accent} />
+            <Text style={styles.sectionTitle}>Bahar Haraf</Text>
+          </View>
+          {renderInputs(baharHarafInputs, 'bahar')}
+        </View>
+
       </ScrollView>
+
+      {/* Footer Area */}
       <View style={styles.footer}>
-        <Text style={styles.totalText}>Total: {total}</Text>
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit</Text>
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total Amount</Text>
+          <Text style={styles.totalValue}>₹ {total}</Text>
+        </View>
+        <TouchableOpacity 
+          style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+          onPress={handleSubmit}
+          disabled={loading}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>{loading ? 'PROCESSING...' : 'SUBMIT BETS'}</Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+      {/* Custom Reusable Alert Modal */}
+      <CustomAlert 
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={hideAlert}
+        buttonText={alertConfig.type === 'error' ? 'TRY AGAIN' : 'OK'}
+      />
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.background,
   },
   scrollContainer: {
-    paddingBottom: 100,
-  },
-  card: {
-    backgroundColor: '#1E1E2C',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    marginTop: 16,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderColor: '#FFD700',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+    paddingBottom: 140, // Space for the fixed footer
   },
-  balanceText: {
-    color: '#FFD700',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  walletBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  walletIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  walletLabel: {
+    color: Colors.secondaryText,
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  walletBalance: {
+    color: '#FFD700',
+    fontSize: 22,
+    fontWeight: '900',
     letterSpacing: 1,
   },
-  categoryContainer: {
-    marginBottom: 16,
+  sectionContainer: {
+    backgroundColor: Colors.primarySurface,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
-  categoryColumn: {
-    marginBottom: 16,
+  sectionHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
+    paddingBottom: 12,
   },
-  categoryHeading: {
-    color: '#fff',
+  sectionTitle: {
+    color: Colors.primaryText,
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginLeft: 8,
+    letterSpacing: 0.5,
   },
-  inputsContainer: {
+  inputsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  inputCard: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  digitBadge: {
+    width: 40,
+    height: 48,
+    backgroundColor: Colors.secondarySurface,
     justifyContent: 'center',
+    alignItems: 'center',
+    borderRightWidth: 1,
+    borderRightColor: Colors.divider,
+  },
+  digitText: {
+    color: '#FFD700',
+    fontSize: 18,
+    fontWeight: '900',
   },
   inputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    margin: 4,
-    width: '15%',
+    paddingHorizontal: 8,
   },
-  serialNumber: {
-    color: '#A0A0A0',
+  rupeeIcon: {
+    color: Colors.secondaryText,
     fontSize: 14,
-    marginBottom: 4,
-    fontWeight: '500',
+    fontWeight: 'bold',
+    marginRight: 4,
   },
   input: {
-    backgroundColor: '#1E1E2C',
-    width: '100%',
-    height: 45,
-    textAlign: 'center',
-    borderRadius: 8,
+    flex: 1,
+    color: Colors.primaryText,
     fontSize: 16,
-    borderColor: '#333344',
-    borderWidth: 1,
-    color: "#fff"
+    fontWeight: '700',
+    height: 48,
+    paddingVertical: 0,
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#1E1E2C',
-    padding: 16,
+    backgroundColor: Colors.primarySurface,
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderColor: '#333344',
-    elevation: 10,
+    marginBottom: 16,
   },
-  totalText: {
+  totalLabel: {
+    color: Colors.secondaryText,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  totalValue: {
     color: '#FFD700',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '900',
   },
   submitButton: {
     backgroundColor: '#FFD700',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
   },
   submitButtonText: {
     color: '#121212',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '900',
+    letterSpacing: 1,
   },
 });
 
 export default Haruf;
-
-

@@ -1,7 +1,7 @@
 
-import {StyleSheet, View, Image, TouchableOpacity, ImageBackground} from 'react-native';
-import React, {useEffect} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import { StyleSheet, View, Image, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
@@ -19,11 +19,11 @@ const SplashScreen = () => {
 
   //   return () => clearTimeout(timer);
   // }, []);
-  const saveddata = async() =>{
+  const saveddata = async () => {
     const token = await AsyncStorage.getItem('userToken');
     if (token) {
       setTimeout(() => {
-         navigation.navigate('Home');
+        navigation.navigate('Home');
       }, 2000);
     } else {
       setTimeout(() => {
@@ -32,13 +32,13 @@ const SplashScreen = () => {
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     saveddata();
-  },[])
+  }, [])
 
   return (
-    <ImageBackground 
-      source={require('../assests/premium_bg.png')} 
+    <ImageBackground
+      source={require('../assests/premium_bg.png')}
       style={styles.container}
     >
       <TouchableOpacity
