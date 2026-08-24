@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -44,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('https://liveapi.sattalives.com/api/login', {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

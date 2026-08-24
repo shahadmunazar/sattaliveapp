@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -62,7 +63,7 @@ const AddMoneyScreen = () => {
         });
       }
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/add-money-to-wallet', {
+      const response = await fetch(`${BASE_URL}/user/add-money-to-wallet`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

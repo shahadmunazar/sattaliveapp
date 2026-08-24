@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useRoute } from '@react-navigation/native';
@@ -38,7 +39,7 @@ const Haruf = () => {
     const fetchData = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`https://liveapi.sattalives.com/api/user/play-games-haruf?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
+        const response = await fetch(`${BASE_URL}/user/play-games-haruf?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -106,7 +107,7 @@ const Haruf = () => {
       };
   
       const token = await AsyncStorage.getItem('userToken');
-      const response = await fetch('https://liveapi.sattalives.com/api/user/submit-harup-game', {
+      const response = await fetch(`${BASE_URL}/user/submit-harup-game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

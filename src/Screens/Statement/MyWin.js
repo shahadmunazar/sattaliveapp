@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,7 +21,7 @@ const MyWin = () => {
           }
           console.log('\n\n=== YOUR CURRENT TOKEN ===\nBearer', token, '\n==========================\n\n');
 
-          const response = await fetch('https://liveapi.sattalives.com/api/user/won-money-list', {
+          const response = await fetch(`${BASE_URL}/user/won-money-list`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

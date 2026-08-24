@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -20,7 +21,7 @@ const PlayGame = () => {
         console.error('Token not found');
         return;
       }
-      const response = await axios.get('https://liveapi.sattalives.com/api/user/sub-category', {
+      const response = await axios.get(`${BASE_URL}/user/sub-category`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (Array.isArray(response.data.data)) {

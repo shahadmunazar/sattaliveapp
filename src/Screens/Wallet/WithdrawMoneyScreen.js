@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -110,7 +111,7 @@ const WithdrawMoneyScreen = ({ route }) => {
         formData.append('ifsc_code', ifscCode);
       }
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/withdrawal-money-request', {
+      const response = await fetch(`${BASE_URL}/user/withdrawal-money-request`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -83,7 +84,7 @@ const PlayGameAdd = () => {
         entered_data: enteredData
       };
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
+      const response = await fetch(`${BASE_URL}/user/submit-double-game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

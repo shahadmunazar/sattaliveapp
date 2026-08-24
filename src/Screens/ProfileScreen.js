@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -58,7 +59,7 @@ const ProfileScreen = ({ navigation }) => {
         new_password_confirmation: confirmPassword,
       };
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/change-password', {
+      const response = await fetch(`${BASE_URL}/user/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

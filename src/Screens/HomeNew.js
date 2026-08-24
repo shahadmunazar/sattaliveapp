@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Animated, TouchableOpacity, Linking, RefreshControl, BackHandler, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,7 +51,7 @@ const HomeNew = () => {
     const token = await AsyncStorage.getItem('userToken');
     try {
       if (!refreshing) setLoading(true);
-      const response = await fetch('https://liveapi.sattalives.com/api/user/numbers-history', {
+      const response = await fetch(`${BASE_URL}/user/numbers-history`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Network response was not ok');
@@ -69,7 +70,7 @@ const HomeNew = () => {
     const token = await AsyncStorage.getItem('userToken');
     try {
       if (!refreshing) setLoading(true);
-      const response = await fetch('https://liveapi.sattalives.com/api/user/home-content', {
+      const response = await fetch(`${BASE_URL}/user/home-content`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Network response was not ok');

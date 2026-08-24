@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, FlatList } from 'react-native';
 import { useRoute } from '@react-navigation/native';
@@ -48,7 +49,7 @@ const Jayantri = () => {
       const fetchData = async () => {
         try {
           const token = await AsyncStorage.getItem('userToken');
-          const response = await fetch(`https://liveapi.sattalives.com/api/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
+          const response = await fetch(`${BASE_URL}/user/play-game-jodi?category_id=${categoryId}&sub_category_id=${subCategoryId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -117,7 +118,7 @@ const Jayantri = () => {
         entered_data: enteredData,
       };
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
+      const response = await fetch(`${BASE_URL}/user/submit-double-game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

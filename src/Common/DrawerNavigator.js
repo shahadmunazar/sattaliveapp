@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 // import React, { useEffect, useState ,useCallback} from 'react';
 // import { createDrawerNavigator } from '@react-navigation/drawer';
 // import CustomDrawer from './CustomDrawer';
@@ -29,7 +30,7 @@
 //       try {
 //         const token = await AsyncStorage.getItem('userToken'); // Assuming you store the token under 'userToken'
 //         if (token) {
-//           const response = await fetch('https://liveapi.sattalives.com/api/user/profile', {
+//           const response = await fetch(`${BASE_URL}/user/profile`, {
 //             method: 'GET',
 //             headers: {
 //               'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
@@ -133,7 +134,7 @@ const DrawerNavigator = () => {
   //   try {
   //     const token = await AsyncStorage.getItem('userToken'); // Assuming you store the token under 'userToken'
   //     if (token) {
-  //       const response = await fetch('https://liveapi.sattalives.com/api/user/profile', {
+  //       const response = await fetch(`${BASE_URL}/user/profile`, {
   //         method: 'GET',
   //         headers: {
   //           'Authorization': `Bearer ${token}`, // Include the token in the Authorization header

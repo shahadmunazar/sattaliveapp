@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Share, Linking, ScrollView, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -53,7 +54,7 @@ const CustomDrawer = () => {
   const handleLogout = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const response = await fetch('https://liveapi.sattalives.com/api/user/user-logout', {
+      const response = await fetch(`${BASE_URL}/user/user-logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+import { BASE_URL } from '../Config/env';
 import React, { useState } from 'react';
 import {
   View,
@@ -62,7 +63,7 @@ const RegisterScreen = ({ navigation }) => {
       referral_code,
     };
 
-    fetch('https://liveapi.sattalives.com/api/signup', {
+    fetch(`${BASE_URL}/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

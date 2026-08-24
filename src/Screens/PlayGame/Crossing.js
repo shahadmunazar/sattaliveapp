@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
@@ -123,7 +124,7 @@ const Crossing = () => {
         entered_data: enteredData
       };
 
-      const response = await fetch('https://liveapi.sattalives.com/api/user/submit-double-game', {
+      const response = await fetch(`${BASE_URL}/user/submit-double-game`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

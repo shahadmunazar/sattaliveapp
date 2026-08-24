@@ -1,3 +1,4 @@
+import { BASE_URL } from '../../Config/env';
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +20,7 @@ const Withdraw = () => {
             throw new Error('Token not found');
           }
 
-          const response = await fetch('https://liveapi.sattalives.com/api/user/withdrawal-money', {
+          const response = await fetch(`${BASE_URL}/user/withdrawal-money`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
