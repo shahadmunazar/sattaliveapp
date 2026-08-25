@@ -46,7 +46,7 @@ const CustomAlert = ({ visible, title, message, type = 'error', onClose, buttonT
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={[styles.button, { backgroundColor: iconColor }]} onPress={onClose} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: iconColor }]} onPress={onConfirm || onClose} activeOpacity={0.8}>
               <Text style={styles.buttonText}>{buttonText}</Text>
             </TouchableOpacity>
           )}

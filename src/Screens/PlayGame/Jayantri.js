@@ -101,7 +101,7 @@ const Jayantri = () => {
       const enteredData = inputValues
         .filter(item => parseInt(item.value) > 0)
         .map(item => ({
-          number: item.number, // Server might expect string "01", "00" etc based on previous implementations
+          number: item.number === '00' ? '100' : item.number, // Server expects "100" for "00"
           amount: parseInt(item.value) || 0,
         }));
 

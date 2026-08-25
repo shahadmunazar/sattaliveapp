@@ -113,7 +113,7 @@ const Crossing = () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
       const enteredData = pairs.map(item => ({
-        number: item.pair,
+        number: item.pair === '00' ? '100' : item.pair,
         amount: item.amount
       }));
       

@@ -8,6 +8,7 @@ import { LoginUser } from '../Redux/Reducers/AuthSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Colors from '../Theme/Colors';
 import CustomAlert from '../Components/CustomAlert';
+import pkg from '../../package.json';
 
 const HomeNew = () => {
   const [currentTime, setCurrentTime] = useState('');
@@ -17,6 +18,9 @@ const HomeNew = () => {
   const [loading, setLoading] = useState(true);
   const [exitModalVisible, setExitModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [updateDetails, setUpdateDetails] = useState(null);
 
   const dispatch = useDispatch();
   const blinkAnimation = useState(new Animated.Value(1))[0];
@@ -33,6 +37,7 @@ const HomeNew = () => {
     useCallback(() => {
       fetchData();
       fetchContent();
+      fetchUpdateSettings();
     }, [])
   );
 
@@ -81,6 +86,26 @@ const HomeNew = () => {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const fetchUpdateSettings = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/app-settings`);
+      const result = await response.json();
+      if (result && result.data && result.data.app_version) {
+        const serverVersion = result.data.app_version;
+        const localVersion = pkg.version || '0.0.1';
+        if (serverVersion !== localVersion) {
+          setUpdateDetails({
+            url: result.data.update_url,
+            force: result.data.force_update === true || result.data.force_update === 1 || result.data.force_update === '1'
+          });
+          setUpdateModalVisible(true);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch update settings', e);
     }
   };
 
@@ -203,6 +228,31 @@ const HomeNew = () => {
         cancelText="Cancel"
         buttonText="Exit"
         onConfirm={() => BackHandler.exitApp()}
+      />
+
+      <CustomAlert
+        visible={updateModalVisible}
+        title="Update Available"
+        message="A new version of the app is available. Please update to continue."
+        type="warning"
+        onClose={() => {
+          if (updateDetails?.force) {
+            BackHandler.exitApp();
+          } else {
+            setUpdateModalVisible(false);
+          }
+        }}
+        showCancelButton={!updateDetails?.force}
+        cancelText="Skip"
+        buttonText="Update Now"
+        onConfirm={() => {
+          if (updateDetails?.url) {
+            Linking.openURL(updateDetails.url).catch(err => console.error(err));
+          }
+          if (!updateDetails?.force) {
+            setUpdateModalVisible(false);
+          }
+        }}
       />
     </View>
   );

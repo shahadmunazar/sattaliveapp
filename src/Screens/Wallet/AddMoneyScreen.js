@@ -1,6 +1,6 @@
 import { BASE_URL } from '../../Config/env';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
@@ -11,6 +11,36 @@ const AddMoneyScreen = () => {
   const [amount, setAmount] = useState('');
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [qrCode, setQrCode] = useState(null);
+  const [loadingQr, setLoadingQr] = useState(true);
+
+  useEffect(() => {
+    const fetchQR = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (!token) {
+          setLoadingQr(false);
+          return;
+        }
+        const response = await fetch(`${BASE_URL}/app-settings`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (data && data.data && data.data.qr_code_image) {
+          let qrUrl = data.data.qr_code_image;
+          if (qrUrl.includes('liveapi.sattalives.com/uploads/')) {
+            qrUrl = qrUrl.replace('liveapi.sattalives.com/uploads/', 'liveapi.sattalives.com/public/uploads/');
+          }
+          setQrCode(qrUrl);
+        }
+      } catch (err) {
+        console.error('Failed to fetch QR code', err);
+      } finally {
+        setLoadingQr(false);
+      }
+    };
+    fetchQR();
+  }, []);
 
   // Custom Alert State
   const [alertConfig, setAlertConfig] = useState({ 
@@ -40,10 +70,10 @@ const AddMoneyScreen = () => {
     }
     
     // Some platforms require a receipt image. If it's mandatory, uncomment below:
-    // if (!image) {
-    //   showAlert('Receipt Required', 'Please upload a screenshot of your payment receipt.', 'warning');
-    //   return;
-    // }
+    if (!image) {
+      showAlert('Receipt Required', 'Please upload a screenshot of your payment receipt.', 'warning');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -63,6 +93,11 @@ const AddMoneyScreen = () => {
         });
       }
 
+      console.log('\n\n--- 🚀 POSTMAN TESTING INFO ---');
+      console.log('BEARER TOKEN:', token);
+      console.log('PAYLOAD:', JSON.stringify({ amount: amount, image_name: image?.fileName || 'receipt.jpg' }));
+      console.log('-------------------------------\n\n');
+
       const response = await fetch(`${BASE_URL}/user/add-money-to-wallet`, {
         method: 'POST',
         headers: {
@@ -72,25 +107,30 @@ const AddMoneyScreen = () => {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server Response Error:', errorText);
-        throw new Error('Network response was not ok.');
+      const responseText = await response.text();
+      console.log('RAW SERVER RESPONSE:', responseText);
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (e) {
+        console.error('JSON Parse Failed. Raw Response:', responseText);
+        throw new Error('Server returned invalid data: ' + responseText.substring(0, 50));
       }
 
-      const result = await response.json();
       setLoading(false);
 
-      if (result.success) {
+      if (response.ok && (result.success || result.status === 'success' || result.status === 200)) {
         showAlert('Request Submitted', 'Your deposit request has been submitted successfully and is pending approval.', 'success');
         setAmount('');
         setImage(null);
       } else {
-        showAlert('Deposit Failed', result.message || 'Something went wrong.', 'error');
+        showAlert('Notice', result.message || 'Deposit could not be completed.', 'warning');
       }
     } catch (error) {
       setLoading(false);
-      showAlert('Connection Error', 'Network error. Please check your connection and try again.', 'error');
+      console.error('Outer Catch Hit:', error);
+      showAlert('Error', error.message || 'Network error. Please try again.', 'error');
     }
   };
 
@@ -115,7 +155,21 @@ const AddMoneyScreen = () => {
         
         <View style={styles.header}>
           <Text style={styles.headerTitle}>DEPOSIT FUNDS</Text>
-          <Text style={styles.headerSubtitle}>Enter amount and upload payment receipt</Text>
+          <Text style={styles.headerSubtitle}>Scan the QR, enter amount, and upload receipt</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.inputLabel}>Scan to Pay</Text>
+          {loadingQr ? (
+            <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
+          ) : qrCode ? (
+            <Image source={{ uri: qrCode }} style={styles.qrImage} />
+          ) : (
+            <View style={styles.emptyQrContainer}>
+              <Icon name="image" size={32} color={Colors.divider} />
+              <Text style={styles.emptyQrText}>No QR code available</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.card}>
@@ -135,7 +189,7 @@ const AddMoneyScreen = () => {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.inputLabel}>Payment Receipt (Optional)</Text>
+          <Text style={styles.inputLabel}>Payment Receipt (Mandatory)</Text>
           
           {image ? (
             <View style={styles.imagePreviewContainer}>
@@ -223,6 +277,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  qrImage: {
+    width: '100%',
+    height: 250,
+    resizeMode: 'contain',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    padding: 8,
+  },
+  emptyQrContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+  },
+  emptyQrText: {
+    color: Colors.secondaryText,
+    marginTop: 8,
+    fontSize: 14,
   },
   inputLabel: {
     color: Colors.primaryText,

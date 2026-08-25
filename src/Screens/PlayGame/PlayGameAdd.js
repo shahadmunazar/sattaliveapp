@@ -73,7 +73,7 @@ const PlayGameAdd = () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
       const enteredData = items.map(item => ({
-        number: item.number,
+        number: item.number === '00' ? '100' : item.number,
         amount: item.money
       }));
       
