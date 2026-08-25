@@ -8,7 +8,7 @@ import { LoginUser } from '../Redux/Reducers/AuthSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Colors from '../Theme/Colors';
 import CustomAlert from '../Components/CustomAlert';
-import pkg from '../../package.json';
+import DeviceInfo from 'react-native-device-info';
 
 const HomeNew = () => {
   const [currentTime, setCurrentTime] = useState('');
@@ -89,14 +89,27 @@ const HomeNew = () => {
     }
   };
 
+  const compareVersions = (v1, v2) => {
+    const v1Parts = v1.split('.').map(Number);
+    const v2Parts = v2.split('.').map(Number);
+    for (let i = 0; i < Math.max(v1Parts.length, v2Parts.length); i++) {
+      const p1 = v1Parts[i] || 0;
+      const p2 = v2Parts[i] || 0;
+      if (p1 > p2) return 1;
+      if (p1 < p2) return -1;
+    }
+    return 0;
+  };
+
   const fetchUpdateSettings = async () => {
     try {
       const response = await fetch(`${BASE_URL}/app-settings`);
       const result = await response.json();
       if (result && result.data && result.data.app_version) {
-        const serverVersion = result.data.app_version;
-        const localVersion = pkg.version || '0.0.1';
-        if (serverVersion !== localVersion) {
+        const serverVersion = result.data.app_version.trim();
+        const localVersion = (DeviceInfo.getVersion() || '0.0.1').trim();
+        // Only show update modal if server version is strictly greater than local version
+        if (compareVersions(serverVersion, localVersion) > 0) {
           setUpdateDetails({
             url: result.data.update_url,
             force: result.data.force_update === true || result.data.force_update === 1 || result.data.force_update === '1'
