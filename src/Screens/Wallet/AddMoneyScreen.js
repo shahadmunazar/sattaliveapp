@@ -1,6 +1,6 @@
 import { BASE_URL } from '../../Config/env';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Platform, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
@@ -87,8 +87,8 @@ const AddMoneyScreen = () => {
 
       if (image) {
         formData.append('image', {
-          uri: image.uri,
-          type: image.type,
+          uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
+          type: image.type || 'image/jpeg',
           name: image.fileName || 'receipt.jpg',
         });
       }
@@ -186,6 +186,14 @@ const AddMoneyScreen = () => {
               maxLength={10}
             />
           </View>
+          {amount && parseInt(amount) > 0 ? (
+            <View style={styles.bonusOfferContainer}>
+              <Icon name="gift" size={16} color="#FFD700" />
+              <Text style={styles.bonusOfferText}>
+                You'll receive <Text style={styles.bonusOfferAmount}>₹{Math.floor(parseInt(amount) * 1.1).toLocaleString('en-IN')}</Text> (10% extra from bonus!)
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.card}>
@@ -328,6 +336,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingHorizontal: 12,
     height: '100%',
+  },
+  bonusOfferContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  bonusOfferText: {
+    color: Colors.primaryText,
+    fontSize: 13,
+    marginLeft: 8,
+  },
+  bonusOfferAmount: {
+    color: '#FFD700',
+    fontWeight: 'bold',
   },
   uploadBox: {
     borderWidth: 2,

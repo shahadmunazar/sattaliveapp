@@ -12,7 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
-  ImageBackground
+  ImageBackground,
+  Modal
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -27,6 +28,7 @@ const RegisterScreen = ({ navigation }) => {
   const [mobileError, setMobileError] = useState('');
   const [hidePassword, setHidePassword] = useState(true);
   const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   const validateMobile = (mobile) => {
     const mobileRegex = /^[0-9]{10}$/;
@@ -73,8 +75,7 @@ const RegisterScreen = ({ navigation }) => {
       .then(response => response.json())
       .then(data => {
         if (data.status === 'success') {
-          Alert.alert('Success', 'Account created successfully');
-          navigation.navigate('Login');
+          setSuccessModalVisible(true);
         } else {
           Alert.alert('Error', data.errors?.referral_code?.[0] || 'Something went wrong');
         }
@@ -184,6 +185,37 @@ const RegisterScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+    
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={successModalVisible}
+        onRequestClose={() => {
+          setSuccessModalVisible(false);
+          navigation.navigate('Login');
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.iconCircle}>
+              <Icon name="check" size={35} color="#fff" />
+            </View>
+            <Text style={styles.modalTitle}>Success!</Text>
+            <Text style={styles.modalMessage}>Account created successfully! You have received a ₹100 Joining Bonus.</Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                setSuccessModalVisible(false);
+                navigation.navigate('Login');
+              }}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -296,6 +328,72 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    width: '80%',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: 45,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  iconCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#00C853',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: -35,
+    borderWidth: 4,
+    borderColor: '#fff',
+    elevation: 5,
+    shadowColor: '#00C853',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 25,
+    lineHeight: 22,
+  },
+  modalButton: {
+    backgroundColor: '#00C853',
+    paddingVertical: 12,
+    paddingHorizontal: 45,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: '#00C853',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
 });
 

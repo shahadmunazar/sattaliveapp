@@ -67,7 +67,7 @@ const CustomDrawer = () => {
       }
 
       await AsyncStorage.clear();
-      navigation.navigate('Login');
+      navigation.navigate('RegisterScreen');
     } catch (error) {
       Alert.alert('Error', 'Failed to logout. Please try again.');
       console.error('Logout error:', error);

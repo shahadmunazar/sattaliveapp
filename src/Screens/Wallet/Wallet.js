@@ -9,6 +9,8 @@ const Wallet = () => {
   const navigation = useNavigation();
   const { result: resultLoginUser } = useSelector((state) => state.login.LoginUser);
   const balance = resultLoginUser?.data?.balance || 0;
+  const bonusBalance = resultLoginUser?.data?.bonus_balance || 0;
+
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -28,6 +30,23 @@ const Wallet = () => {
           <View style={styles.balanceFooter}>
             <Text style={styles.statusText}>
               <Icon name="check-circle" size={12} color="#121212" /> Verified Wallet
+            </Text>
+          </View>
+        </View>
+        
+        {/* Bonus Balance Card */}
+        <View style={styles.bonusCard}>
+          <View style={styles.balanceHeader}>
+            <View style={[styles.walletIconBox, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+              <Icon name="gift" size={24} color="#FFF" />
+            </View>
+            <Text style={[styles.balanceTitle, { color: 'rgba(255, 255, 255, 0.9)' }]}>Bonus Balance</Text>
+          </View>
+          <Text style={[styles.balanceAmount, { color: '#FFF' }]}>₹ {bonusBalance.toLocaleString('en-IN')}</Text>
+          
+          <View style={[styles.balanceFooter, { borderTopColor: 'rgba(255, 255, 255, 0.2)' }]}>
+            <Text style={[styles.statusText, { color: '#FFF' }]}>
+              <Icon name="award" size={12} color="#FFF" /> Promotional Bonus
             </Text>
           </View>
         </View>
@@ -110,8 +129,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD700',
     borderRadius: 24,
     padding: 24,
+    marginBottom: 16,
     elevation: 10,
     shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+  },
+  bonusCard: {
+    backgroundColor: '#9C27B0',
+    borderRadius: 24,
+    padding: 24,
+    elevation: 10,
+    shadowColor: '#9C27B0',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 16,
